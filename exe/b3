@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby2.5
+# frozen_string_literal: true
+
+lib_path = File.expand_path('../lib', __dir__)
+$:.unshift(lib_path) if !$:.include?(lib_path)
+require 'b3/cli'
+
+Signal.trap('INT') do
+  warn("\n#{caller.join("\n")}: interrupted")
+  exit(1)
+end
+
+begin
+  B3::CLI.start
+rescue B3::CLI::Error => err
+  puts "ERROR: #{err.message}"
+  exit 1
+end
