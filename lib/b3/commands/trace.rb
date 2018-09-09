@@ -14,23 +14,42 @@ module B3
 
       def execute(input: $stdin, output: $stdout)
         lines = []
+        unparseable_lines = []
 
         Open3.popen2e('strace', '-f', '-T', *@process_segments) do |_, o, thr|
-          Thread.new do
-            while line = o.gets do
-              puts line
-              # puts Parser.parse(line)
+          t = Thread.new do
+
+            while (line = o.gets) do
+              if line.nil?  or line.chomp == ''
+                puts '-'
+                next
+              end
+
+              parsed = Parser.parse(line)
+              if parsed.nil?
+                unparseable_lines << line
+                next
+              end
+
+              lines << parsed
+              puts parsed
             end
           end
+          t.abort_on_exception = true
 
-
-          puts thr.value
+          puts ">>>>#{thr.value}"
           thr.join
-          #
-          # lines.each do |line|
-          #   puts "SYSCALL: #{line['syscall']} => #{line['result']}"
-          # end
         end
+      rescue IOError => e
+        if e.message == 'stream closed'
+          puts 'stream closed'
+        else
+          require 'byebug'
+          byebug
+        end
+      rescue => e
+        require 'byebug'
+        byebug
       end
     end
   end
