@@ -50,7 +50,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "tty-which", "~> 0.3.0"
   spec.add_dependency "pastel", "~> 0.7.2"
   spec.add_dependency "thor", "~> 0.20.0"
-  spec.add_dependency "virtus", "~> 1.0", ">= 1.0.5"
+  spec.add_dependency "colorize", "~> 0.8"
 
   spec.add_development_dependency "bundler", "~> 1.16"
   spec.add_development_dependency "rake", "~> 10.0"

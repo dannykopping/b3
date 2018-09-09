@@ -3,6 +3,9 @@
 require 'open3'
 require_relative '../command'
 require_relative '../parser'
+require_relative '../syscalls'
+require_relative '../renderer'
+require_relative '../errors/render'
 
 module B3
   module Commands
@@ -32,12 +35,11 @@ module B3
               end
 
               lines << parsed
-              puts parsed
+              B3::Renderer.output(parsed)
             end
           end
           t.abort_on_exception = true
 
-          puts ">>>>#{thr.value}"
           thr.join
         end
       rescue IOError => e
@@ -47,6 +49,10 @@ module B3
           require 'byebug'
           byebug
         end
+      rescue B3::Error::Render => e
+        puts 'render error!'
+        require 'byebug'
+        byebug
       rescue => e
         require 'byebug'
         byebug
