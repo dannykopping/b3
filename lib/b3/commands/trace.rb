@@ -2,10 +2,8 @@
 
 require 'open3'
 require_relative '../command'
-require_relative '../parser'
-require_relative '../syscalls'
 require_relative '../renderer'
-require_relative '../errors/render'
+require_relative '../tracer'
 
 module B3
   module Commands
@@ -16,46 +14,13 @@ module B3
       end
 
       def execute(input: $stdin, output: $stdout)
-        lines = []
-        unparseable_lines = []
+        renderer = B3::Renderer.new({})
 
-        Open3.popen2e('strace', '-f', '-T', *@process_segments) do |_, o, thr|
-          t = Thread.new do
-
-            while (line = o.gets) do
-              if line.nil?  or line.chomp == ''
-                puts '-'
-                next
-              end
-
-              parsed = Parser.parse(line)
-              if parsed.nil?
-                unparseable_lines << line
-                next
-              end
-
-              lines << parsed
-              B3::Renderer.output(parsed)
-            end
-          end
-          t.abort_on_exception = true
-
-          thr.join
+        exit_status = B3::Tracer.trace(@process_segments) do |traced_line, original_line|
+          renderer.render(traced_line)
         end
-      rescue IOError => e
-        if e.message == 'stream closed'
-          puts 'stream closed'
-        else
-          require 'byebug'
-          byebug
-        end
-      rescue B3::Error::Render => e
-        puts 'render error!'
-        require 'byebug'
-        byebug
-      rescue => e
-        require 'byebug'
-        byebug
+
+        puts "process exit: #{exit_status}"
       end
     end
   end
