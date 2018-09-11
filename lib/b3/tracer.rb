@@ -7,15 +7,14 @@ module B3
     def self.trace(process_segments, &block)
       exit_status = nil
 
+      Thread.abort_on_exception = true
+
       Open3.popen3('strace', *strace_flags, *process_segments) do |stdin, stdout, stderr, proc_thread|
         read_thread = Thread.new do
           while (line = stderr.gets) do
             yield Parser.parse(line.to_s), line if block_given?
           end
         end
-
-        # proc_thread.report_on_exception = true
-        # read_thread.report_on_exception = true
 
         read_thread.join
         proc_thread.join
@@ -32,8 +31,6 @@ module B3
         require 'byebug'
         byebug
       end
-    rescue B3::Error::Render => e
-      puts "render error! #{e.data}"
     end
 
     private

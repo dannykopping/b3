@@ -17,7 +17,11 @@ module B3
         renderer = B3::Renderer.new({})
 
         exit_status = B3::Tracer.trace(@process_segments) do |traced_line, original_line|
-          renderer.render(traced_line)
+          begin
+            renderer.render(traced_line)
+          rescue B3::Error::Render => e
+            puts "Failed to parse line:\n#{original_line}".bold.red
+          end
         end
 
         puts "process exit: #{exit_status}"
