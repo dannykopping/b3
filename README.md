@@ -6,7 +6,6 @@
  
 ## Roadmap
 
- - add support for processes already running
  - add support for displaying from saved strace output file
  - replace Thor with https://rubygems.org/gems/clamp
  - add option to parent the process or run as detached grandchild
