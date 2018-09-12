@@ -1,15 +1,18 @@
 require_relative 'parser'
 require_relative 'syscalls'
+require_relative 'models/trace_options'
 
 module B3
   class Tracer
     # thanks https://nickcharlton.net/posts/ruby-subprocesses-with-stdout-stderr-streams.html
-    def self.trace(process_segments, &block)
+    def self.trace(process_segments, options, &block)
       exit_status = nil
 
       Thread.abort_on_exception = true
 
-      Open3.popen3('strace', *strace_flags, *process_segments) do |stdin, stdout, stderr, proc_thread|
+      args = *strace_flags(options)
+      args.concat(process_segments) unless process_segments.empty?
+      Open3.popen3('strace', *args) do |stdin, stdout, stderr, proc_thread|
         read_thread = Thread.new do
           while (line = stderr.gets) do
             yield Parser.parse(line.to_s), line if block_given?
@@ -35,14 +38,24 @@ module B3
 
     private
 
-    def self.strace_flags
-      [
+    def self.strace_flags(options = {})
+      flags = [
           '-f',       # follow forks
           '-D',       # Run as a detached grandchild, not parent
           '-T',       # show time spent in syscall
           '-s 1000',  # show n bytes of strings # TODO make configurable
           '-qq',      # suppress messages about process exit status
       ]
+
+      if options.is_a?(B3::Model::TraceOptions)
+        # cannot use this flag when tracing a running process
+        flags.delete('-D')
+
+        # trace given PIDs
+        flags.concat(['-p', options.pids.join(',')])
+      end
+
+      flags
     end
   end
 end

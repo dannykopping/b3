@@ -1,9 +1,11 @@
+require_relative 'errors/strace'
+
 module B3
   class Parser
     def self.parse(line)
-      # TODO efficiently remove lines beginning with "+++" (strace exit line)
-
       return unless line
+
+      raise B3::Error::Strace.new('strace encountered an error', line) if line.start_with?('strace:')
 
       data = line.scrub.match(pattern)
       return unless data.is_a?(MatchData)
