@@ -17,6 +17,10 @@ module B3
 
       @data = data
 
+      # if [Syscalls::Category::FILE, Syscalls::Category::DESC].include?(category)
+        @data['args'] = render_file_args(@data['args'])
+      # end
+
       puts "#{pid}#{syscall}#{result}#{time}"
     end
 
@@ -28,8 +32,13 @@ module B3
       "[pid #{@data['pid'].bold}] "
     end
 
+    def category
+      return nil unless @data['syscall']
+
+      Syscalls.categorise(@data['syscall'])
+    end
+
     def syscall
-      category = Syscalls.categorise(@data['syscall'])
       raise B3::Error::Render.new('Cannot print uncategorised line', @data) unless category
 
       colour = B3::Syscalls::Category.colour(category)
@@ -39,7 +48,7 @@ module B3
     def args
       return '()' unless @data['args']
 
-      "(#{@data['args'].scrub.strip})"
+      "(#{@data['args'].join(', ')})"
     end
 
     def result
@@ -52,6 +61,15 @@ module B3
       return nil unless @data['time']
 
       " (#{@data['time'].scrub.strip}s)"
+    end
+
+    def render_file_args(args)
+      return unless args
+
+      args.map do |arg|
+        string = arg.match /^"[^"]*"$/
+        string ? arg.bold : arg
+      end
     end
   end
 end

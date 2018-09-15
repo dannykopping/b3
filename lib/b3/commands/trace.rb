@@ -15,7 +15,8 @@ module B3
         @options = B3::Model::TraceOptions.new(options)
         @process_segments = process_segments
       rescue B3::Error::Validation => e
-        puts "#{e.message}: Option '#{e.option.to_s.underline}' with value #{e.value.inspect.red}"
+        puts "#{e.message}\nOption '#{e.option.to_s.underline}' with value #{e.value.inspect.red}"
+        exit 1
       end
 
       def execute(input: $stdin, output: $stdout)

@@ -10,7 +10,11 @@ module B3
       data = line.scrub.match(pattern)
       return unless data.is_a?(MatchData)
 
-      data.named_captures
+      parsed = data.named_captures
+      return nil unless parsed
+
+      parsed['args'] = split_args(parsed['args'])
+      parsed
     end
 
     private
@@ -29,6 +33,27 @@ module B3
         (?:<(?<time>[\d\.]+)>)?                  # The processing time of the syscall
         $
       /mx
+    end
+
+    def self.split_args(args)
+      # H/T to https://stackoverflow.com/a/18893443/385265
+      split = args.strip.split(/
+        ,           # Split on comma
+        (?=         # Followed by
+           (?:      # Start a non-capture group
+             [^"]*  # 0 or more non-quote characters
+             "      # 1 quote
+             [^"]*  # 0 or more non-quote characters
+             "      # 1 quote
+           )*       # 0 or more repetition of non-capture group (multiple of 2 quotes will be even)
+           [^"]*    # Finally 0 or more non-quotes
+           $        # Till the end  (This is necessary, else every comma will satisfy the condition)
+        )
+      /x)
+
+      return [] unless split
+
+      split.map { |arg| arg.to_s.strip }
     end
   end
 end
