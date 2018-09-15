@@ -42,6 +42,8 @@ module B3
       end
 
       def render(parsed_line, original_line)
+        puts original_line if @options.debug
+
         return nil unless parsed_line
         @renderer.render(parsed_line)
       rescue B3::Error::Render => e

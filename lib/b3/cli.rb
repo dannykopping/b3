@@ -25,6 +25,8 @@ module B3
                          desc: 'Trace the given PIDs'
     method_option :input_file, aliases: '-i', type: :string,
                          desc: 'Use the given file as input'
+    method_option :debug, aliases: '-d', type: :boolean,
+                         desc: 'Show raw strace data'
     def trace(*process)
       if options[:help]
         invoke :help, ['trace']

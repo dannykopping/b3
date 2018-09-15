@@ -17,9 +17,9 @@ module B3
 
       @data = data
 
-      # if [Syscalls::Category::FILE, Syscalls::Category::DESC].include?(category)
+      if [Syscalls::Category::FILE, Syscalls::Category::DESC, Syscalls::Category::NETWORK].include?(category)
         @data['args'] = render_file_args(@data['args'])
-      # end
+      end
 
       puts "#{pid}#{syscall}#{result}#{time}"
     end
@@ -47,8 +47,9 @@ module B3
 
     def args
       return '()' unless @data['args']
+      return '()' if @data['args'].empty?
 
-      "(#{@data['args'].join(', ')})"
+      "(\n  #{@data['args'].join(",\n  ")}\n)"
     end
 
     def result
@@ -67,8 +68,8 @@ module B3
       return unless args
 
       args.map do |arg|
-        string = arg.match /^"[^"]*"$/
-        string ? arg.bold : arg
+        string = arg.match /"[^"]*"/
+        string ? arg.red.bold : arg
       end
     end
   end
