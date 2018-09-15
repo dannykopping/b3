@@ -11,6 +11,8 @@ module B3
           case option
           when 'pids'
             raise B3::Error::Validation.new('Invalid PID(s) given', option, value) unless valid_pids?(value.dup)
+          when 'input_file'
+            raise B3::Error::Validation.new('Invalid input file given', option, value) unless valid_input_file?(value)
           end
         end
       end
@@ -21,6 +23,12 @@ module B3
         return false unless pids
 
         pids.keep_if {|pid| pid.to_s.match /^\d+$/}.length > 0
+      end
+
+      def self.valid_input_file?(file)
+        return false unless file
+
+        File.exists?(file)
       end
     end
   end

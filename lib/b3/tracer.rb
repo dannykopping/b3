@@ -48,11 +48,14 @@ module B3
       ]
 
       if options.is_a?(B3::Model::TraceOptions)
-        # cannot use this flag when tracing a running process
-        flags.delete('-D')
 
-        # trace given PIDs
-        flags.concat(['-p', options.pids.join(',')])
+        case true
+        when options.pids
+          # cannot use this flag when tracing a running process
+          flags.delete('-D')
+          # trace given PIDs
+          flags.concat(['-p', options.pids.join(',')])
+        end
       end
 
       flags

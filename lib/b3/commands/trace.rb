@@ -19,20 +19,32 @@ module B3
       end
 
       def execute(input: $stdin, output: $stdout)
-        renderer = B3::Renderer.new({})
+        @renderer = B3::Renderer.new({})
 
-        exit_status = B3::Tracer.trace(@process_segments, @options) do |traced_line, original_line|
-          begin
-            renderer.render(traced_line)
-          rescue B3::Error::Render => e
-            puts "Failed to parse line:\n#{original_line}".bold.red
+        # TODO: neaten this up - move into own command?
+        exit_status = nil
+        if @options.input_file
+          File.open(@options.input_file, 'r') do |file|
+            file.each_line.lazy.each do |line|
+              parsed_line = Parser.parse(line.to_s)
+              render(parsed_line, line)
+            end
           end
+        else
+          exit_status = B3::Tracer.trace(@process_segments, @options, &method(:render))
         end
 
         puts "process exit: #{exit_status}"
       rescue B3::Error::Strace => e
         print 'strace error: '.bold
         puts e.output.red
+      end
+
+      def render(parsed_line, original_line)
+        return nil unless parsed_line
+        @renderer.render(parsed_line)
+      rescue B3::Error::Render => e
+        puts "Failed to parse line:\n#{original_line}".bold.red
       end
     end
   end

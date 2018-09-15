@@ -23,6 +23,8 @@ module B3
                          desc: 'Display usage information'
     method_option :pids, aliases: '-p', type: :array,
                          desc: 'Trace the given PIDs'
+    method_option :input_file, aliases: '-i', type: :string,
+                         desc: 'Use the given file as input'
     def trace(*process)
       if options[:help]
         invoke :help, ['trace']
