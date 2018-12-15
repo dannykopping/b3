@@ -24,7 +24,7 @@ RSpec.describe 'strace line parsing' do
 
       expect(parsed.pid).to eq(nil)
       expect(parsed.syscall).to eq('write')
-      expect(parsed.args).to eq(['26', '"hello world\n"', '12'])
+      expect(parsed.args).to eq([26, '"hello world\n"', 12])
       expect(parsed.result).to eq(12)
       expect(parsed.time).to eq(0.000021)
     end
@@ -34,7 +34,7 @@ RSpec.describe 'strace line parsing' do
 
       expect(parsed.pid).to eq(10757)
       expect(parsed.syscall).to eq('write')
-      expect(parsed.args).to eq(['26', '"hello world\n"', '12'])
+      expect(parsed.args).to eq([26, '"hello world\n"', 12])
       expect(parsed.result).to eq(12)
       expect(parsed.time).to eq(0.000021)
     end

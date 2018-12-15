@@ -1,6 +1,7 @@
 require_relative 'errors/strace'
 require_relative 'errors/parser'
 require_relative 'models/parsed_syscall'
+require_relative 'arguments_parser'
 
 module B3
   class Parser
@@ -18,7 +19,7 @@ module B3
       parsed = data.named_captures
       raise B3::Error::ParserError, 'Failed to match pattern' unless parsed
 
-      parsed['args'] = split_args(parsed['args'])
+      parsed['args'] = ArgumentsParser.parse(parsed['args'])
       B3::Model::ParsedSyscall.new(parsed).freeze
     rescue B3::Error::ParserError => e
       # suppress exceptions unless `debug` flag is passed
@@ -43,27 +44,6 @@ module B3
         (?:<(?<time>[\d\.]+)>)?                  # The processing time of the syscall
         $
       /mx
-    end
-
-    def self.split_args(args)
-      # H/T to https://stackoverflow.com/a/18893443/385265
-      split = args.strip.split(/
-        ,               # Split on comma
-        (?=             # Followed by
-           (?:          # Start a non-capture group
-             [^{}"]*    # 0 or more non-quote characters
-             (?:{|}|")  # 1 quote
-             [^{}"]*    # 0 or more non-quote characters
-             (?:{|}|")  # 1 quote
-           )*           # 0 or more repetition of non-capture group (multiple of 2 quotes will be even)
-           [^{}"]*      # Finally 0 or more non-quotes
-           $            # Till the end  (This is necessary, else every comma will satisfy the condition)
-        )
-      /x)
-
-      return [] unless split
-
-      split.map { |arg| arg.to_s.strip }
     end
   end
 end
