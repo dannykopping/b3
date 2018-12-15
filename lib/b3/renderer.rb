@@ -1,4 +1,4 @@
-require 'colorize'
+# require 'colorize'
 
 require_relative 'errors/render'
 

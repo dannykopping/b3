@@ -1,7 +1,11 @@
 require_relative 'errors/strace'
+require_relative 'models/parsed_syscall'
 
 module B3
   class Parser
+    #
+    # @return B3::Model::ParsedSyscall
+    #
     def self.parse(line)
       return unless line
 
@@ -14,7 +18,7 @@ module B3
       return nil unless parsed
 
       parsed['args'] = split_args(parsed['args'])
-      parsed
+      B3::Model::ParsedSyscall.new(parsed).freeze
     end
 
     private
