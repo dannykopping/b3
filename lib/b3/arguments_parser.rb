@@ -41,9 +41,9 @@ module B3
         (?=                   # Followed by
            (?:                # Start a non-capture group
              [^{}"\[\]]*      # 0 or more separator characters
-             (?:{|}|"|\[|\])  # 1 quote
+             (?:{|}|"|\[|\])  # 1 separator
              [^{}"\[\]]*      # 0 or more separator characters
-             (?:{|}|"|\[|\])  # 1 quote
+             (?:{|}|"|\[|\])  # 1 separator
            )*                 # 0 or more repetition of non-capture group (multiple of 2 quotes will be even)
            [^{}"\[\]]*        # Finally 0 or more separators
            $                  # Till the end  (This is necessary, else every comma will satisfy the condition)

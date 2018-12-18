@@ -69,5 +69,11 @@ EOF
       parsed = B3::ArgumentsParser.parse('[7,10,19], NULL, [7, "a string", NULL]')
       expect(parsed).to eq([[7,10,19], nil, [7, 'a string', nil]])
     end
+
+    skip 'should handle syscalls with an nested array arguments' do
+      # arguments parser cannot currently handle this without converting to a lexer,
+      # which seems like a bridge too far right now. if i find any syscalls that
+      # leverage nested arrays, i will consider fixing this
+    end
   end
 end
