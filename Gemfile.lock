@@ -22,16 +22,19 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.8.0)
     rspec-support (3.8.0)
+    rspec_junit_formatter (0.4.1)
+      rspec-core (>= 2, < 4, != 2.12.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   b3!
-  bundler (~> 1.16)
+  bundler (~> 1.15)
   byebug (~> 10.0)
   rake (~> 10.0)
   rspec (~> 3.0)
+  rspec_junit_formatter (~> 0.4.1)
 
 BUNDLED WITH
    1.16.4
