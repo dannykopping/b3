@@ -24,6 +24,10 @@ module B3
       # NULL
       when argument =~ /^NULL$/
         nil
+      # array
+      when argument =~ /^\[([^\]]+)?\]$/
+        elements = $1
+        self.parse(elements)
       else
         argument
       end
@@ -33,16 +37,16 @@ module B3
 
     def self.pattern
       /
-        ,               # Split on comma
-        (?=             # Followed by
-           (?:          # Start a non-capture group
-             [^{}"]*    # 0 or more non-quote characters
-             (?:{|}|")  # 1 quote
-             [^{}"]*    # 0 or more non-quote characters
-             (?:{|}|")  # 1 quote
-           )*           # 0 or more repetition of non-capture group (multiple of 2 quotes will be even)
-           [^{}"]*      # Finally 0 or more non-quotes
-           $            # Till the end  (This is necessary, else every comma will satisfy the condition)
+        ,                     # Split on comma
+        (?=                   # Followed by
+           (?:                # Start a non-capture group
+             [^{}"\[\]]*      # 0 or more separator characters
+             (?:{|}|"|\[|\])  # 1 quote
+             [^{}"\[\]]*      # 0 or more separator characters
+             (?:{|}|"|\[|\])  # 1 quote
+           )*                 # 0 or more repetition of non-capture group (multiple of 2 quotes will be even)
+           [^{}"\[\]]*        # Finally 0 or more separators
+           $                  # Till the end  (This is necessary, else every comma will satisfy the condition)
         )
       /x
     end
