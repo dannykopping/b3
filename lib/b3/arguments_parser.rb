@@ -11,8 +11,7 @@ module B3
     rule(:data_structure) { array | object | integer | string | address | null | flag_list }
 
     # whitespace
-    rule(:space) { match(/\s/).repeat(1) }
-    rule(:space?) { match(/\s/).repeat(1).maybe }
+    rule(:space?) { match(/\s/).repeat }
 
     # separators
     rule(:separator) { match(',') }
