@@ -36,23 +36,23 @@ EOF
       expect(parsed).to eq([1, "i'm a string with \"different\" kinds of quotes (even ‘non-ascii’)", 'another "value"', 68])
     end
 
-    it 'should handle syscalls with multiple arguments' do
+    it 'should handle syscalls with a NULL argument' do
       # e.g.
-      # man 2 lseek
+      # man 2 brk
       # ...
-      #   `lseek(int fd, off_t offset, int whence)`
+      #   `brk (void *addr)`
       # ...
-      parsed = B3::ArgumentsParser.parse('27, 8192, SEEK_SET')
-      expect(parsed).to eq([27, 8192, 'SEEK_SET'])
+      parsed = B3::ArgumentsParser.execute('NULL')
+      expect(parsed).to eq([nil])
     end
 
-    it 'should handle syscalls with a NULL argument' do
+    it 'should handle syscalls with a multiple flags' do
       # e.g.
       # man 2 mmap
       # ...
       #   `*mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)`
       # ...
-      parsed = B3::ArgumentsParser.parse('NULL, 16384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0')
+      parsed = B3::ArgumentsParser.execute('NULL, 16384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0')
       expect(parsed).to eq([nil, 16384, 'PROT_READ|PROT_WRITE', 'MAP_PRIVATE|MAP_ANONYMOUS', -1, 0])
     end
 
@@ -66,7 +66,7 @@ EOF
       #   fd_set is just an array of file descriptors
       # ...
       #
-      parsed = B3::ArgumentsParser.parse('[7,10,19], NULL, [7, "a string", NULL]')
+      parsed = B3::ArgumentsParser.execute('[7,10,19], NULL, [7, "a string", NULL]')
       expect(parsed).to eq([[7,10,19], nil, [7, 'a string', nil]])
     end
 

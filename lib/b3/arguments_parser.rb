@@ -5,10 +5,10 @@ module B3
     root(:argument_list)
 
     rule(:argument_list) {
-      data_structure >> space? >> separator? >> space? >> argument_list.repeat(0)
+      data_structure >> space? >> separator? >> space? >> argument_list.repeat
     }
 
-    rule(:data_structure) { array | object | integer | string | address }
+    rule(:data_structure) { array | object | integer | string | address | null | flag_list }
 
     # whitespace
     rule(:space) { match(/\s/).repeat(1) }
@@ -21,24 +21,24 @@ module B3
     # arrays
     rule(:array) {
       str('[') >> (
-      str('[').absent? >> array_element
-      ).repeat(0).as(:elements) >> str(']')
+        str('[').absent? >> array_element
+      ).repeat.as(:array_elements) >> str(']')
     }
-    rule(:array_element) { space? >> data_structure.as(:element) >> space? >> separator? }
+    rule(:array_element) { space? >> data_structure.as(:array_element) >> space? >> separator? }
 
     # objects
     rule(:object) {
       str('{') >> (
       str('{').absent? >> property
-      ).repeat(0).as(:properties) >> str('}')
+      ).repeat.as(:properties) >> str('}')
     }
 
-    rule(:property_key) { match(/[a-zA-Z0-9_'"]/).repeat(1) }
-    rule(:property_value) { data_structure.repeat(0) }
+    rule(:property_key) { match(/[a-zA-Z][_a-zA-Z0-9'"]*/).repeat(1) }
+    rule(:property_value) { data_structure.repeat }
     rule(:property) { space? >> property_key.as(:key) >> space? >> str('=') >> space? >> property_value.as(:value) >> space? }
 
     # ints (match integers not followed by 'x' - for address)
-    rule(:integer) { match('[0-9]').repeat(1).as(:integer) >> str('x').absent? }
+    rule(:integer) { match(/-?[0-9]/).repeat(1).as(:integer) >> str('x').absent? }
 
     # addresses
     rule(:address) { (str('0x') >> match(/[0-9a-fA-F]/).repeat(1)).as(:address) }
@@ -57,6 +57,12 @@ module B3
         str("'").absent? >> any
       ).repeat.as(:string) >> str("'")
     }
+
+    # flags/flags
+    rule(:flags) { match(/[_A-Z][_A-Z0-9]*/).repeat(1) >> str('|').maybe >> flags.repeat }
+    rule(:flag_list) { flags.as(:flag_list) }
+
+    rule(:null) { str('NULL').as(:null) }
 
     def self.execute(arguments_str)
       parsed = self.new.parse(arguments_str)
@@ -79,6 +85,8 @@ module B3
 
   class Transformer < Parslet::Transform
     rule(:integer => simple(:x)) { Integer(x) }
-    rule(:string => simple(:x)) { x.to_s }
+    rule(:string => simple(:x)) { x }
+    rule(:flag_list => simple(:x)) { x }
+    rule(:null => simple(:x)) { nil }
   end
 end
