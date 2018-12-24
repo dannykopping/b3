@@ -77,6 +77,12 @@ EOF
       parsed = B3::ArgumentsParser.execute('[[["inner"], 123], \'outer\']')
       expect(parsed).to eq([[['inner'], 123], 'outer'])
     end
+
+    it 'should handle escape sequences as arguments' do
+      parsed = B3::ArgumentsParser.execute('"\n", \'\t\'')
+      expect(parsed).to eq(['\n', '\t'])
+    end
+
     end
   end
 end

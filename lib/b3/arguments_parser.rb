@@ -47,13 +47,13 @@ module B3
     rule(:string) { single_quoted_string | double_quoted_string }
     rule(:double_quoted_string) {
       str('"') >> (
-        str('\\').ignore >> any |
+        str('\\').ignore >> str('"') |
         str('"').absent? >> any
       ).repeat.as(:string) >> str('"')
     }
     rule(:single_quoted_string) {
       str("'") >> (
-        str('\\').ignore >> any |
+        str('\\').ignore >> str("'") |
         str("'").absent? >> any
       ).repeat.as(:string) >> str("'")
     }
