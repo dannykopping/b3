@@ -3,9 +3,9 @@ require 'b3/arguments_parser'
 RSpec.describe 'strace argument parsing' do
   context 'interface' do
     it 'returns a frozen array representing the syscall\'s arguments' do
-      parsed = B3::ArgumentsParser.parse('0')
+      parsed = B3::ArgumentsParser.execute('0')
 
-      expect(parsed).to be_a(Array)
+      expect(parsed).to eq([0])
       expect(parsed.frozen?).to be(true)
     end
   end
@@ -17,7 +17,7 @@ RSpec.describe 'strace argument parsing' do
       # ...
       #   `symlink(const char *target, const char *linkpath)`
       # ...
-      parsed = B3::ArgumentsParser.parse('"source", "target"')
+      parsed = B3::ArgumentsParser.execute('"source", \'target\'')
       expect(parsed).to eq(['source', 'target'])
     end
 
@@ -29,11 +29,11 @@ RSpec.describe 'strace argument parsing' do
       # ...
 
       arguments = <<-EOF
-1, "i'm a string with \"different\" kinds of quotes (even \342\200\230non-ascii\342\200\231)", 68
+1, "i'm a string with \\"different\\" kinds of quotes (even \342\200\230non-ascii\342\200\231)", 'another "value"', 68
 EOF
 
-      parsed = B3::ArgumentsParser.parse(arguments)
-      expect(parsed).to eq([1, "i'm a string with \"different\" kinds of quotes (even ‘non-ascii’)", 68])
+      parsed = B3::ArgumentsParser.execute(arguments.chomp)
+      expect(parsed).to eq([1, "i'm a string with \"different\" kinds of quotes (even ‘non-ascii’)", 'another "value"', 68])
     end
 
     it 'should handle syscalls with multiple arguments' do
