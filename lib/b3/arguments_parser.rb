@@ -28,13 +28,12 @@ module B3
     # objects
     rule(:object) {
       str('{') >> (
-      str('{').absent? >> property
+        str('}').absent? >> property
       ).repeat.as(:properties) >> str('}')
     }
 
-    rule(:property_key) { match(/[a-zA-Z][_a-zA-Z0-9'"]*/).repeat(1) }
-    rule(:property_value) { data_structure.repeat }
-    rule(:property) { space? >> property_key.as(:key) >> space? >> str('=') >> space? >> property_value.as(:value) >> space? }
+    rule(:property_key) { match(/[_a-zA-Z][_a-zA-Z0-9'"]*/).repeat(1) }
+    rule(:property) { space? >> property_key.as(:key) >> space? >> str('=') >> space? >> data_structure.as(:value) >> space? >> str(',').maybe >> property.repeat }
 
     # ints (match integers not followed by 'x' - for address)
     rule(:integer) { match(/-?[0-9]/).repeat(1).as(:integer) >> str('x').absent? }
