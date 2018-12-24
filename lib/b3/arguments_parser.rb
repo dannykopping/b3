@@ -82,13 +82,19 @@ module B3
   end
 
   class Transformer < Parslet::Transform
-    class Property < Struct.new(:key, :value); end
-
     rule(:integer => simple(:x)) { Integer(x) }
     rule(:string => simple(:x)) { x.to_s }
     rule(:flag_list => simple(:x)) { x.to_s }
     rule(:array_element => subtree(:x)) { x }
     rule(:array_elements => subtree(:x)) { x }
+    rule(:properties => subtree(:x)) {
+      hash = {}
+      x.map do |data|
+        hash[data[:key].to_sym] = data[:value]
+      end
+
+      hash
+    }
     rule(:null => simple(:x)) { nil }
   end
 end

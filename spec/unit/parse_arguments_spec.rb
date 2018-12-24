@@ -83,6 +83,20 @@ EOF
       expect(parsed).to eq(['\n', '\t'])
     end
 
+    it 'should handle syscalls with a struct argument' do
+      # e.g.
+      # man 2 writev
+      # ...
+      #   `writev(int fd, const struct iovec *iov, int iovcnt);`
+      #
+      #    struct iovec {
+      #        void  *iov_base;    /* Starting address */
+      #        size_t iov_len;     /* Number of bytes to transfer */
+      #    };
+      # ...
+      #
+      parsed = B3::ArgumentsParser.execute('1, [{iov_base="something", iov_len=9}, {iov_base="\n", iov_len=1}], 2')
+      expect(parsed).to eq([1, [{iov_base: 'something', iov_len: 9}, {iov_base: '\n', iov_len: 1}], 2])
     end
   end
 end
