@@ -21,7 +21,7 @@ module B3
     # arrays
     rule(:array) {
       str('[') >> (
-        str('[').absent? >> array_element
+        str(']').absent? >> array_element
       ).repeat.as(:array_elements) >> str(']')
     }
     rule(:array_element) { space? >> data_structure.as(:array_element) >> space? >> separator? }
@@ -84,11 +84,13 @@ module B3
   end
 
   class Transformer < Parslet::Transform
+    class Property < Struct.new(:key, :value); end
+
     rule(:integer => simple(:x)) { Integer(x) }
-    rule(:string => simple(:x)) { x }
-    rule(:flag_list => simple(:x)) { x }
-    rule(:array_element => simple(:x)) { x }
-    rule(:array_elements => sequence(:x)) { x }
+    rule(:string => simple(:x)) { x.to_s }
+    rule(:flag_list => simple(:x)) { x.to_s }
+    rule(:array_element => subtree(:x)) { x }
+    rule(:array_elements => subtree(:x)) { x }
     rule(:null => simple(:x)) { nil }
   end
 end
