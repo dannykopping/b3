@@ -19,7 +19,7 @@ module B3
       parsed = data.named_captures
       raise B3::Error::ParserError, 'Failed to match pattern' unless parsed
 
-      parsed['args'] = ArgumentsParser.parse(parsed['args'])
+      parsed['args'] = ArgumentsParser.execute(parsed['args'])
       B3::Model::ParsedSyscall.new(parsed).freeze
     rescue B3::Error::ParserError => e
       # suppress exceptions unless `debug` flag is passed
