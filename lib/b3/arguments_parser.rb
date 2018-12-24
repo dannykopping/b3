@@ -87,6 +87,8 @@ module B3
     rule(:integer => simple(:x)) { Integer(x) }
     rule(:string => simple(:x)) { x }
     rule(:flag_list => simple(:x)) { x }
+    rule(:array_element => simple(:x)) { x }
+    rule(:array_elements => sequence(:x)) { x }
     rule(:null => simple(:x)) { nil }
   end
 end
