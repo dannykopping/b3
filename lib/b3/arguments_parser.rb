@@ -105,13 +105,14 @@ module B3
   end
 
   class Transformer < Parslet::Transform
-    rule(:integer => simple(:x)) { Integer(x) }
-    rule(:string => simple(:x)) { x.to_s }
-    rule(:flag_list => simple(:x)) { x.to_s }
-    rule(:array_element => subtree(:x)) { x }
-    rule(:array_elements => subtree(:x)) { x }
-    rule(:address => simple(:x)) { x.to_s }
-    rule(:properties => subtree(:x)) {
+    rule(:integer => simple(:x))          { Integer(x) }
+    rule(:string => simple(:x))           { x.to_s }
+    rule(:flag_list => simple(:x))        { x.to_s.include?('|') ? x.to_s.split('|') : x.to_s }
+    rule(:array_element => subtree(:x))   { x }
+    rule(:array_elements => subtree(:x))  { x }
+    rule(:address => simple(:x))          { x.to_s }
+    rule(:null => simple(:x))             { nil }
+    rule(:properties => subtree(:x))      {
       hash = {}
       next hash unless x.is_a?(Array)
 
@@ -121,6 +122,5 @@ module B3
 
       hash
     }
-    rule(:null => simple(:x)) { nil }
   end
 end
