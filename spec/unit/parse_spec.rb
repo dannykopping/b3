@@ -39,6 +39,13 @@ RSpec.describe 'strace line parsing' do
       expect(parsed.time).to eq(0.000021)
     end
 
+    it 'accurately parses a syscall with no arguments' do
+      parsed = B3::Parser.parse('getuid() = 1000 <0.000007>')
+
+      expect(parsed.syscall).to eq('getuid')
+      expect(parsed.args).to eq([])
+    end
+
     it 'coerces the data into appropriate data-types' do
       parsed = B3::Parser.parse(basic_line)
       expect(parsed.pid).to be_nil

@@ -86,6 +86,8 @@ module B3
     rule(:ellipsis) { str('...') }
 
     def self.execute(arguments_str)
+      return [] if arguments_str.to_s.strip.empty?
+
       parsed = self.new.parse(arguments_str)
       transform_result(parsed)
     rescue Parslet::ParseFailed => e
