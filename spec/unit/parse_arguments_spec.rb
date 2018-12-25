@@ -191,10 +191,9 @@ EOF
       expect(parsed).to eq([5, {:sa_family=>"AF_UNIX", :sun_path=>"/tmp/.X11-unix/X0"}, "[124->20]"])
     end
 
-    it 'should handle binary data' do
-      source = File.read('/bin/true', 1000) # read 1000 bytes of binary data
-      parsed = B3::ArgumentsParser.execute("\"#{source}\"")
-      expect(parsed).to eq(["#{source}"])
+    it 'should handle UTF8 data and scrub invalid UTF08 sequences' do
+      parsed = B3::ArgumentsParser.execute("3, \"$invalid: \255\n$kanji: \346\274\242\345\255\227\", 26")
+      expect(parsed).to eq([3, "$invalid: �\n$kanji: 漢字", 26])
     end
   end
 end
