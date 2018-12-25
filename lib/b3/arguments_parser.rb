@@ -8,7 +8,10 @@ module B3
       data_structure >> space? >> separator? >> space? >> argument_list.repeat
     }
 
-    rule(:data_structure) { array | bitwise_array | object | inline_object | integer | string | address | null | flag_list | comment }
+    rule(:data_structure) {
+      array | bitwise_array | object | inline_object |
+      integer | string | address | null | flag_list | comment | socket_notation
+    }
 
     # whitespace
     rule(:space?) { match(/\s/).repeat }
@@ -33,6 +36,13 @@ module B3
       ).repeat.as(:array_elements) >> str(']')
     }
     rule(:bitwise_array_element) { space? >> flag_list.as(:array_element) >> space? }
+
+    # strange socket notation
+    rule(:socket_notation) {
+      str('[') >> (
+        match('[0-9]').repeat(1) >> space? >> str('->') >> space? >> match('[0-9]').repeat(1)
+      ).as(:socket_notation) >> str(']')
+    }
 
     # objects
     rule(:object) {
@@ -143,5 +153,6 @@ module B3
     rule(:null => simple(:x))             { nil }
     rule(:properties => subtree(:x))      { transform_object.call(x) }
     rule(:inline_object => subtree(:x))   { transform_object.call(x) }
+    rule(:socket_notation=> simple(:x))   { "[#{x.to_s}]" }
   end
 end
