@@ -8,7 +8,7 @@ module B3
       data_structure >> space? >> separator? >> space? >> argument_list.repeat
     }
 
-    rule(:data_structure) { array | object | integer | string | address | null | flag_list }
+    rule(:data_structure) { array | object | integer | string | address | null | flag_list | comment }
 
     # whitespace
     rule(:space?) { match(/\s/).repeat }
@@ -33,7 +33,13 @@ module B3
     }
 
     rule(:property_key) { match(/[_a-zA-Z][_a-zA-Z0-9'"]*/).repeat(1) }
-    rule(:property) { space? >> property_key.as(:key) >> space? >> str('=') >> space? >> data_structure.as(:value) >> space? >> str(',').maybe >> property.repeat }
+    rule(:property) {
+      ellipses |
+      (
+        property_key.as(:key) >> space? >> str('=') >> space? >>
+        data_structure.as(:value) >> space? >> str(',').maybe >> property.repeat >> space?
+      )
+    }
 
     # ints (match integers not followed by 'x' - for address)
     rule(:integer) { match(/-?[0-9]/).repeat(1).as(:integer) >> str('x').absent? }
@@ -57,10 +63,21 @@ module B3
     }
 
     # flags/flags
-    rule(:flags) { match(/[_A-Z][_A-Z0-9]*/).repeat(1) >> str('|').maybe >> flags.repeat }
+    rule(:flags) { match(/[_A-Z0-9]/).repeat(1) >> str('|').maybe >> flags.repeat }
     rule(:flag_list) { flags.as(:flag_list) }
 
+    # null
     rule(:null) { str('NULL').as(:null) }
+
+    # comments
+    rule(:comment) {
+      space? >> str('/*') >> (
+        str('*/').absent? >> any
+      ).repeat >> str('*/')
+    }
+
+    # ellipses
+    rule(:ellipses) { str('...') }
 
     def self.execute(arguments_str)
       parsed = self.new.parse(arguments_str)
@@ -87,8 +104,11 @@ module B3
     rule(:flag_list => simple(:x)) { x.to_s }
     rule(:array_element => subtree(:x)) { x }
     rule(:array_elements => subtree(:x)) { x }
+    rule(:address => simple(:x)) { x.to_s }
     rule(:properties => subtree(:x)) {
       hash = {}
+      next hash unless x.is_a?(Array)
+
       x.map do |data|
         hash[data[:key].to_sym] = data[:value]
       end

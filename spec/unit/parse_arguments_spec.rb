@@ -98,5 +98,15 @@ EOF
       parsed = B3::ArgumentsParser.execute('1, [{iov_base="something", iov_len=9}, {iov_base="\n", iov_len=1}], 2')
       expect(parsed).to eq([1, [{iov_base: 'something', iov_len: 9}, {iov_base: '\n', iov_len: 1}], 2])
     end
+
+    it 'should handle incomplete objects' do
+      parsed = B3::ArgumentsParser.execute('3, {st_mode=S_IFREG|0644, st_size=99571, ...}')
+      expect(parsed).to eq([3, {st_mode: 'S_IFREG|0644', st_size: 99571}])
+    end
+
+    it 'should handle comments' do
+      parsed = B3::ArgumentsParser.execute('"/bin/ls", ["ls"], 0x7ffcd01c8b48 /* 78 vars */')
+      expect(parsed).to eq(['/bin/ls', ['ls'], '0x7ffcd01c8b48'])
+    end
   end
 end
