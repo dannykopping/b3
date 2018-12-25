@@ -53,7 +53,7 @@ EOF
       #   `*mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)`
       # ...
       parsed = B3::ArgumentsParser.execute('NULL, 16384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0')
-      expect(parsed).to eq([nil, 16384, 'PROT_READ|PROT_WRITE', 'MAP_PRIVATE|MAP_ANONYMOUS', -1, 0])
+      expect(parsed).to eq([nil, 16384, ['PROT_READ', 'PROT_WRITE'], ['MAP_PRIVATE', 'MAP_ANONYMOUS'], -1, 0])
     end
 
     it 'should handle syscalls with an array argument' do
@@ -106,7 +106,7 @@ EOF
 
     it 'should handle incomplete objects' do
       parsed = B3::ArgumentsParser.execute('3, {st_mode=S_IFREG|0644, st_size=99571, ...}')
-      expect(parsed).to eq([3, {st_mode: 'S_IFREG|0644', st_size: 99571}])
+      expect(parsed).to eq([3, {st_mode: ['S_IFREG', '0644'], st_size: 99571}])
     end
 
     it 'should handle comments' do
