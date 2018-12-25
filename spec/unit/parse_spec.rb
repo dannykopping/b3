@@ -77,6 +77,10 @@ RSpec.describe 'strace line parsing' do
         B3::Parser.parse(nil, debug: true)
       }.to raise_error(B3::Error::ParserError, 'Empty line')
     end
+
+    it 'ignores lines that do not conform to the naming convention of function names (i.e. syscall resumes)' do
+      expect(B3::Parser.parse('[pid 22006] <... read resumed> "]\6\367="..., 8192) = 8192 <0.000029>')).to eq(nil)
+    end
   end
 
   context 'internal strace error-handling' do
