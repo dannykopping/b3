@@ -56,6 +56,16 @@ EOF
       expect(parsed).to eq([nil, 16384, ['PROT_READ', 'PROT_WRITE'], ['MAP_PRIVATE', 'MAP_ANONYMOUS'], -1, 0])
     end
 
+    it 'should handle a single flag as a constant, and not return an array (because it is not possible to distinguish between a flag and constant)' do
+      # e.g.
+      # man 2 mmap
+      # ...
+      #   `*mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)`
+      # ...
+      parsed = B3::ArgumentsParser.execute('NULL, 16384, PROT_READ, MAP_PRIVATE, -1, 0')
+      expect(parsed).to eq([nil, 16384, 'PROT_READ', 'MAP_PRIVATE', -1, 0])
+    end
+
     it 'should handle syscalls with an array argument' do
       # e.g.
       # man 2 select
