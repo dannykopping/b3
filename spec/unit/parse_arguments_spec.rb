@@ -177,7 +177,18 @@ EOF
       #
 
       parsed = B3::ArgumentsParser.execute('7, {sa_family=AF_UNIX}, [124->2]')
-      expect(parsed).to eq( [7, {:sa_family=>"AF_UNIX"}, '[124->2]'])
+      expect(parsed).to eq([7, {:sa_family=>"AF_UNIX"}, '[124->2]'])
+    end
+
+    it 'should handle socket addresses' do
+      # e.g.
+      # man 2 getpeername
+      # ...
+      #   `getpeername(int sockfd, struct sockaddr *addr, socklen_t *addrlen)`
+      #
+
+      parsed = B3::ArgumentsParser.execute('5, {sa_family=AF_UNIX, sun_path=@"/tmp/.X11-unix/X0"}, [124->20]')
+      expect(parsed).to eq([5, {:sa_family=>"AF_UNIX", :sun_path=>"/tmp/.X11-unix/X0"}, "[124->20]"])
     end
   end
 end

@@ -74,6 +74,7 @@ module B3
     # strings
     rule(:string) { single_quoted_string | double_quoted_string }
     rule(:double_quoted_string) {
+      str('@').maybe >> # in the case of socket address printing
       str('"') >> (
         str('\\').ignore >> str('"') |
         str('"').absent? >> any
