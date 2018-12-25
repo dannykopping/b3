@@ -34,7 +34,7 @@ module B3
 
     rule(:property_key) { match(/[_a-zA-Z][_a-zA-Z0-9'"]*/).repeat(1) }
     rule(:property) {
-      ellipses |
+      ellipsis |
       (
         property_key.as(:key) >> space? >> str('=') >> space? >>
         (arithmetic_expression | data_structure).as(:value) >> space? >> str(',').maybe >> property.repeat >> space?
@@ -53,7 +53,7 @@ module B3
       str('"') >> (
         str('\\').ignore >> str('"') |
         str('"').absent? >> any
-      ).repeat.as(:string) >> str('"')
+      ).repeat.as(:string) >> str('"') >> space? >> ellipsis.maybe
     }
     rule(:single_quoted_string) {
       str("'") >> (
@@ -82,8 +82,8 @@ module B3
       match(/[0-9]/).repeat
     }
 
-    # ellipses
-    rule(:ellipses) { str('...') }
+    # ellipsis
+    rule(:ellipsis) { str('...') }
 
     def self.execute(arguments_str)
       parsed = self.new.parse(arguments_str)

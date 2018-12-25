@@ -139,5 +139,13 @@ EOF
       parsed = B3::ArgumentsParser.execute('0, RLIMIT_STACK, NULL, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}')
       expect(parsed).to eq([0, "RLIMIT_STACK", nil, {:rlim_cur=>"8192*1024", :rlim_max=>"RLIM64_INFINITY"}])
     end
+
+    it 'should handle truncated strings' do
+      # strace adds a trailing ellipsis when the size of the buffer exceeds the `-s` value
+      #   `-s strsize  Specify the maximum string size to print (the default is 32).`
+
+      parsed = B3::ArgumentsParser.execute('1, "inner ... ellipsis and outer..."..., 1542')
+      expect(parsed).to eq([1, 'inner ... ellipsis and outer...', 1542])
+    end
   end
 end
