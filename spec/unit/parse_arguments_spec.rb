@@ -190,5 +190,11 @@ EOF
       parsed = B3::ArgumentsParser.execute('5, {sa_family=AF_UNIX, sun_path=@"/tmp/.X11-unix/X0"}, [124->20]')
       expect(parsed).to eq([5, {:sa_family=>"AF_UNIX", :sun_path=>"/tmp/.X11-unix/X0"}, "[124->20]"])
     end
+
+    it 'should handle binary data' do
+      source = File.read('/bin/true', 1000) # read 1000 bytes of binary data
+      parsed = B3::ArgumentsParser.execute("\"#{source}\"")
+      expect(parsed).to eq(["#{source}"])
+    end
   end
 end

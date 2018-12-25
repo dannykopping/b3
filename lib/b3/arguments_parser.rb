@@ -111,7 +111,8 @@ module B3
     rule(:ellipsis) { str('...') }
 
     def self.execute(arguments_str)
-      return [] if arguments_str.to_s.strip.empty?
+      arguments_str = arguments_str.to_s.strip.scrub
+      return [] if arguments_str.empty?
 
       parsed = self.new.parse(arguments_str)
       transform_result(parsed)
