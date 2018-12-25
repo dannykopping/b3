@@ -156,8 +156,16 @@ EOF
       #                           kernel_sigset_t *oldset, size_t sigsetsize)`
       #
 
-    parsed = B3::ArgumentsParser.execute('SIG_SETMASK, ~[RTMIN RT_1], [], 8')
+      parsed = B3::ArgumentsParser.execute('SIG_SETMASK, ~[RTMIN RT_1], [], 8')
       expect(parsed).to eq(['SIG_SETMASK', '~["RTMIN", "RT_1"]', [], 8])
+    end
+
+    it 'should handle inline object properties' do
+      # e.g.
+      # man 2 clone
+
+      parsed = B3::ArgumentsParser.execute('child_stack=0x7f6988283c70, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID, parent_tidptr=0x7f69882849d0, tls=0x7f6988284700, child_tidptr=0x7f69882849d0')
+      expect(parsed).to eq([{:child_stack=>'0x7f6988283c70'}, {:flags=>['CLONE_VM', 'CLONE_FS', 'CLONE_FILES', 'CLONE_SIGHAND', "CLONE_THREAD", 'CLONE_SYSVSEM', 'CLONE_SETTLS', 'CLONE_PARENT_SETTID', 'CLONE_CHILD_CLEARTID']}, {:parent_tidptr=>'0x7f69882849d0'}, {:tls=>'0x7f6988284700'}, {:child_tidptr=>'0x7f69882849d0'}])
     end
   end
 end

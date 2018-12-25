@@ -8,7 +8,7 @@ module B3
       data_structure >> space? >> separator? >> space? >> argument_list.repeat
     }
 
-    rule(:data_structure) { array | bitwise_array | object | integer | string | address | null | flag_list | comment }
+    rule(:data_structure) { array | bitwise_array | object | inline_object | integer | string | address | null | flag_list | comment }
 
     # whitespace
     rule(:space?) { match(/\s/).repeat }
@@ -41,13 +41,18 @@ module B3
       ).repeat.as(:properties) >> str('}')
     }
 
+    rule(:inline_object) { # i.e. no enclosing {}
+      property_definition.as(:inline_object)
+    }
+
     rule(:property_key) { match(/[_a-zA-Z][_a-zA-Z0-9'"]*/).repeat(1) }
+    rule(:property_value) { arithmetic_expression | data_structure }
+    rule(:property_definition) {
+      property_key.as(:key) >> space? >> str('=') >> space? >>
+      property_value.as(:value)
+    }
     rule(:property) {
-      ellipsis |
-      (
-        property_key.as(:key) >> space? >> str('=') >> space? >>
-        (arithmetic_expression | data_structure).as(:value) >> space? >> str(',').maybe >> property.repeat >> space?
-      )
+      ellipsis | property_definition >> space? >> str(',').maybe >> property.repeat >> space?
     }
 
     # ints (match integers not followed by 'x' - for address)
@@ -116,6 +121,17 @@ module B3
   end
 
   class Transformer < Parslet::Transform
+    transform_object = lambda { |value|
+      return {value[:key].to_sym => value[:value]} unless value.is_a?(Array)
+
+      hash = {}
+      value.map do |data|
+        hash[data[:key].to_sym] = data[:value]
+      end
+
+      hash
+    }
+
     rule(:integer => simple(:x))          { Integer(x) }
     rule(:string => simple(:x))           { x.to_s }
     rule(:flag_list => simple(:x))        { x.to_s.include?('|') ? x.to_s.split('|') : x.to_s }
@@ -125,15 +141,7 @@ module B3
          :array_elements => subtree(:x))  { "#{op.to_s}#{x}" }
     rule(:address => simple(:x))          { x.to_s }
     rule(:null => simple(:x))             { nil }
-    rule(:properties => subtree(:x))      {
-      hash = {}
-      next hash unless x.is_a?(Array)
-
-      x.map do |data|
-        hash[data[:key].to_sym] = data[:value]
-      end
-
-      hash
-    }
+    rule(:properties => subtree(:x))      { transform_object.call(x) }
+    rule(:inline_object => subtree(:x))   { transform_object.call(x) }
   end
 end
