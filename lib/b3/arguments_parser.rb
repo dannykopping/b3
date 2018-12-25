@@ -37,7 +37,7 @@ module B3
       ellipses |
       (
         property_key.as(:key) >> space? >> str('=') >> space? >>
-        data_structure.as(:value) >> space? >> str(',').maybe >> property.repeat >> space?
+        (arithmetic_expression | data_structure).as(:value) >> space? >> str(',').maybe >> property.repeat >> space?
       )
     }
 
@@ -74,6 +74,12 @@ module B3
       space? >> str('/*') >> (
         str('*/').absent? >> any
       ).repeat >> str('*/')
+    }
+
+    rule(:arithmetic_expression) {
+      match(/[0-9]/).repeat >> space? >>
+        (str('+') | str('-') | str('*') | str('/')) >> space? >>
+      match(/[0-9]/).repeat
     }
 
     # ellipses

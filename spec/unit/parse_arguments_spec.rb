@@ -108,5 +108,21 @@ EOF
       parsed = B3::ArgumentsParser.execute('"/bin/ls", ["ls"], 0x7ffcd01c8b48 /* 78 vars */')
       expect(parsed).to eq(['/bin/ls', ['ls'], '0x7ffcd01c8b48'])
     end
+
+    it 'should handle expressions as object values' do
+      # e.g.
+      # man 2 prlimit64
+      # ...
+      #   `prlimit(pid_t pid, int resource, const struct rlimit *new_limit, struct rlimit *old_limit)`
+      #
+      #   struct rlimit {
+      #      rlim_t rlim_cur;  /* Soft limit */
+      #      rlim_t rlim_max;  /* Hard limit (ceiling for rlim_cur) */
+      #   };
+      #
+
+      parsed = B3::ArgumentsParser.execute('0, RLIMIT_STACK, NULL, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}')
+      expect(parsed).to eq([0, "RLIMIT_STACK", nil, {:rlim_cur=>"8192*1024", :rlim_max=>"RLIM64_INFINITY"}])
+    end
   end
 end
