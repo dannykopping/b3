@@ -8,7 +8,7 @@ module B3
       data_structure >> space? >> separator? >> space? >> argument_list.repeat
     }
 
-    rule(:data_structure) { array | object | integer | string | address | null | flag_list | comment }
+    rule(:data_structure) { array | bitwise_array | object | integer | string | address | null | flag_list | comment }
 
     # whitespace
     rule(:space?) { match(/\s/).repeat }
@@ -24,6 +24,15 @@ module B3
       ).repeat.as(:array_elements) >> str(']')
     }
     rule(:array_element) { space? >> data_structure.as(:array_element) >> space? >> separator? }
+
+    # bitwise operator expression
+    rule(:bitwise_array) {
+      (str('~') | str('^')).as(:bitwise_operator) >>
+      str('[') >> (
+      str(']').absent? >> bitwise_array_element
+      ).repeat.as(:array_elements) >> str(']')
+    }
+    rule(:bitwise_array_element) { space? >> flag_list.as(:array_element) >> space? }
 
     # objects
     rule(:object) {
@@ -112,6 +121,8 @@ module B3
     rule(:flag_list => simple(:x))        { x.to_s.include?('|') ? x.to_s.split('|') : x.to_s }
     rule(:array_element => subtree(:x))   { x }
     rule(:array_elements => subtree(:x))  { x }
+    rule(:bitwise_operator => simple(:op),
+         :array_elements => subtree(:x))  { "#{op.to_s}#{x}" }
     rule(:address => simple(:x))          { x.to_s }
     rule(:null => simple(:x))             { nil }
     rule(:properties => subtree(:x))      {

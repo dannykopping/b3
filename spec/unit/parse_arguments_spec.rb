@@ -147,5 +147,17 @@ EOF
       parsed = B3::ArgumentsParser.execute('1, "inner ... ellipsis and outer..."..., 1542')
       expect(parsed).to eq([1, 'inner ... ellipsis and outer...', 1542])
     end
+
+    it 'should handle bitwise operation on a list' do
+      # e.g.
+      # man 2 rt_sigprocmask
+      # ...
+      #   `rt_sigprocmask(int how, const kernel_sigset_t *set,
+      #                           kernel_sigset_t *oldset, size_t sigsetsize)`
+      #
+
+    parsed = B3::ArgumentsParser.execute('SIG_SETMASK, ~[RTMIN RT_1], [], 8')
+      expect(parsed).to eq(['SIG_SETMASK', '~["RTMIN", "RT_1"]', [], 8])
+    end
   end
 end
