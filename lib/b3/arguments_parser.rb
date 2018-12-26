@@ -117,7 +117,6 @@ module B3
       parsed = self.new.parse(arguments_str)
       transform_result(parsed)
     rescue Parslet::ParseFailed => e
-      puts e.parse_failure_cause.ascii_tree
       raise e
     end
 
