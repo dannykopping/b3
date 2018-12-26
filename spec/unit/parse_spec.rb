@@ -81,6 +81,13 @@ RSpec.describe 'strace line parsing' do
     it 'ignores lines that do not conform to the naming convention of function names (i.e. syscall resumes)' do
       expect(B3::Parser.execute('[pid 22006] <... read resumed> "]\6\367="..., 8192) = 8192 <0.000029>')).to eq(nil)
     end
+
+    # this is an open problem, but a very cornery corner-case
+    xit 'handles inner ") =" value in arguments which might confuse the parser' do
+      confusing = <<-EOF
+[pid 31112] read(10, "something) ="..., 8192) = 8192 <0.000010>
+EOF
+      expect(B3::Parser.execute(confusing.chomp)).to_not eq(nil)
     end
   end
 
