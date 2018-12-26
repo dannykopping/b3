@@ -43,7 +43,7 @@ module B3
       # parse arguments separately to reduce complexity of this class
       parsed[:arguments] = ArgumentsParser.execute(parsed[:arguments].to_s)
 
-      transform_result(parsed)
+      puts transform_result(parsed).to_json
     rescue Parslet::ParseFailed => e
       # suppress exceptions unless `debug` flag is passed
       return nil unless debug

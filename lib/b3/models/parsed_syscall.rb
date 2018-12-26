@@ -1,3 +1,5 @@
+require 'json'
+
 module B3
   module Model
     class ParsedSyscall
@@ -9,6 +11,16 @@ module B3
         @args = data[:arguments]
         @result = data[:result] =~ /-?[0-9]+/ ? data[:result].to_i : data[:result].to_s
         @timing = data[:timing].to_f
+      end
+
+      def to_json
+        {
+            :pid => pid,
+            :syscall => syscall,
+            :args => args,
+            :result => result,
+            :timing => timing
+        }.to_json
       end
     end
   end
