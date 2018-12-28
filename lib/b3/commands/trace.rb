@@ -45,7 +45,8 @@ module B3
         puts original_line if @options.debug
 
         return nil unless parsed_line
-        @renderer.render(parsed_line)
+        # @renderer.render(parsed_line)
+        puts parsed_line.to_json
       rescue B3::Error::Render => e
         puts "Failed to parse line:\n#{original_line}".bold.red
       end

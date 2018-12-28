@@ -1,48 +1,60 @@
+require 'parslet'
+
 require_relative 'errors/strace'
 require_relative 'errors/parser'
 require_relative 'models/parsed_syscall'
 require_relative 'arguments_parser'
 
 module B3
-  class Parser
-    #
-    # @return B3::Model::ParsedSyscall
-    #
-    def self.parse(line, debug: false)
+  class Parser < Parslet::Parser
+    root(:syscall_line)
+
+    rule(:syscall_line) { pid.maybe >> syscall >> arguments >> result >> timing.maybe }
+
+    rule(:pid) { (str('[pid') >> space?).maybe >> match(/[0-9]/).repeat(1).as(:pid) >> (space? >> str(']')).maybe >> space? }
+
+    rule(:syscall) { space? >> match(/[_a-zA-Z][_a-zA-Z0-9'"]*/).repeat.as(:syscall) >> space? }
+
+    rule(:arguments) {
+      space? >> str('(') >> (
+        str(')').absent? >> any
+      ).repeat.as(:arguments) >> str(')')
+    }
+
+    rule(:result) { space? >> str('=') >> space? >> (str('<').absent? >> any).repeat.as(:result) >> space? }
+
+    rule(:timing) { space? >> str('<') >> match(/[.0-9]/).repeat.as(:timing) >> str('>') >> space? }
+
+    rule(:space?) { match(/\s/).repeat }
+
+
+
+    def self.execute(line, debug: false)
       raise B3::Error::ParserError, 'Empty line' unless line
 
       raise B3::Error::Strace.new('strace encountered an error', line) if line.start_with?('strace:')
 
-      data = line.scrub.match(pattern)
-      raise B3::Error::ParserError, 'Failed to match pattern' unless data.is_a?(MatchData)
+      parsed = self.new.parse(line)
 
-      parsed = data.named_captures
-      raise B3::Error::ParserError, 'Failed to match pattern' unless parsed
+      # may contain some whitespace which is probably unavoidable,
+      # since the :result can have spaces in it, and timing is optional
+      parsed[:result] = parsed[:result].to_s.strip
 
-      parsed['args'] = ArgumentsParser.execute(parsed['args'])
-      B3::Model::ParsedSyscall.new(parsed).freeze
-    rescue B3::Error::ParserError => e
+      # parse arguments separately to reduce complexity of this class
+      parsed[:arguments] = ArgumentsParser.execute(parsed[:arguments].to_s)
+
+      transform_result(parsed)
+    rescue Parslet::ParseFailed => e
       # suppress exceptions unless `debug` flag is passed
       return nil unless debug
 
-      raise e
+      raise B3::Error::ParserError.new('Failed to match pattern', e.parse_failure_cause)
     end
 
     private
 
-    def self.pattern
-      /
-        ^
-        (?:\[pid\s*)?(?<pid>\d+)?(?:\]?)\s*      # The PID of the process under trace (optional, missing if no fork)
-        (?<syscall>[_a-zA-Z][_a-zA-Z0-9'"]*)     # The syscall's name
-        \s*\(
-        (?<args>[^\)]*)?\s*\)                    # The arguments passed to the syscall
-        \s*=\s*
-        (?<result>[^<]*)                         # The result of the syscall
-        \s*
-        (?:<(?<time>[\d\.]+)>)?                  # The processing time of the syscall
-        $
-      /mx
+    def self.transform_result(parsed)
+      Model::ParsedSyscall.new(parsed).freeze
     end
   end
 end
