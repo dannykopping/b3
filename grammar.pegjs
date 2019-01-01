@@ -25,10 +25,14 @@ array
 bitwise_array
   = values:(
     operator:([~^]) '['
-    head:bitwise_array_element
-    tail:(',' _ value:bitwise_array_element { return value; })*
+    head:(value:bitwise_array_element { return value.join(''); })
+    tail:(',' _ value:bitwise_array_element { return value.join(''); })*
       {
-      return operator + "[" + [head].concat(tail).join(', ') + "]"; }
+        return {
+          operator:operator,
+          elements: [head].concat(tail)
+        };
+      }
     )?
   ']'
   { return values !== null ? values : []; }
@@ -87,7 +91,15 @@ object_property
 
 arithmetic_expression = [-0-9]+ _ [+-/*] _ [-0-9]+
 
-result = _ '=' _ value:([^<]+) _ { return value.join(''); }
+result
+  = _ '=' _ value:([^<]+) _ {
+    value = value.join('').trim();
+    try {
+        return Number(value);
+    } catch(e) {
+        return value;
+    }
+  }
 
 timing = _ '<' value:([\.\-0-9]+) '>' _ { return Number(value.join('')); }
 

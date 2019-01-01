@@ -13,3 +13,4 @@
 .idea
 vendor
 .bundle
+node_modules

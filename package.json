@@ -1,0 +1,31 @@
+{
+  "name": "strace-json",
+  "version": "0.0.1",
+  "description": "",
+  "main": "cli.js",
+  "directories": {
+    "doc": "doc",
+    "test": "test"
+  },
+  "dependencies": {
+    "expect.js": "^0.3.1",
+    "pegjs": "^0.10.0"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0",
+    "expect.js": "^0.3.1"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dannykopping/b3.git"
+  },
+  "author": "Danny Kopping",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dannykopping/b3/issues"
+  },
+  "homepage": "https://github.com/dannykopping/b3#readme"
+}
