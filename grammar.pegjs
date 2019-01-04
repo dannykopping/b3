@@ -69,10 +69,14 @@ object
 arguments_list
  = values:(
     head:data_structure
-    tail:(',' _ value:data_structure { return value; })+
+    tail:("," _ value:data_structure { return value; })*
       { return [head].concat(tail); }
     )?
-  { return values !== null ? values : []; }
+  {
+    // https://stackoverflow.com/a/10865042/385265
+    var flattened = [].concat.apply([], values);
+    return values !== null && values != [[]] ? flattened : [];
+  }
 
 data_structure
   = array / int / string / object / bitwise_array / flag / flags

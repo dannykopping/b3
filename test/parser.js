@@ -70,6 +70,16 @@ describe('strace output parsing', function() {
       });
     });
 
+    it('accurately parses a syscall with a single argument', function() {
+      expect(parser.parseLine(String.raw `close(4) = 0 <0.000011>`, options)).to.eql({
+        pid: null,
+        syscall: 'close',
+        args: [4],
+        result: 0,
+        timing: 0.000011
+      });
+    });
+
     it('refuses to parse unfinished syscalls', function() {
       expect(function() {
         parser.parseLine(String.raw `6955  <... futex resumed> )             = -1 ETIMEDOUT (Connection timed out)`, options)
