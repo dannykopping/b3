@@ -79,10 +79,44 @@ data_structure
 
 int = [0-9]+ { return parseInt(text()); }
 
-string = value:(single_quoted_string / double_quoted_string) { return value }
+// string processing borrowed from https://github.com/pegjs/pegjs/blob/master/examples/json.pegjs
+string "string"
+  = _ quotation_mark chars:char* quotation_mark ellipsis? { return chars.join(""); }
 
-single_quoted_string = "'" value:([^']*) "'" { return value.join('') }
-double_quoted_string = '"' value:([^"]*) '"' { return value.join('') }
+char
+  = unescaped
+  / escape
+    sequence:(
+        '"'
+      /  "'"
+      / "\\"
+      / "/"
+      / digits:DIGIT+ { return ["\\"].concat(digits).join('') }
+      / "b" { return "\\b"; }
+      / "f" { return "\\f"; }
+      / "n" { return "\\n"; }
+      / "r" { return "\\r"; }
+      / "t" { return "\\t"; }
+      / "u" digits:$(HEXDIG HEXDIG HEXDIG HEXDIG) {
+          return String.fromCharCode(parseInt(digits, 16));
+        }
+    )
+    { return sequence; }
+
+escape
+  = "\\"
+
+quotation_mark
+  = '"' / '"'
+
+unescaped
+  = [^\0-\x1F\x22\x5C]
+
+// ----- Core ABNF Rules -----
+
+// See RFC 4234, Appendix B (http://tools.ietf.org/html/rfc4234).
+DIGIT  = [0-9]
+HEXDIG = [0-9a-f]i
 
 object_property
   = ellipsis? _ key:([_a-zA-Z0-9'"]+) _ '=' _ value:(arithmetic_expression / data_structure) {
