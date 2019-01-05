@@ -2,7 +2,8 @@ var expect = require('expect.js');
 var parser = require('../lib/parser.js');
 
 var options = {
-  debug: process.env.DEBUG == 'true'
+  debug: process.env.DEBUG == 'true',
+  trace: process.env.TRACE == 'true',
 };
 
 describe('strace output parsing', function() {
