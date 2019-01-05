@@ -1,5 +1,7 @@
-var parser = require('./strace-parser.js');
+var parser = require('./lib/parser.js');
+var errors = require('./lib/errors.js');
 var readline = require('readline');
+
 var rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,

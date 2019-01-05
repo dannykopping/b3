@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "expect.js": "^0.3.1",
+    "node-exceptions": "^4.0.1",
     "pegjs": "^0.10.0"
   },
   "devDependencies": {
