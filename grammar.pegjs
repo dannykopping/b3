@@ -79,9 +79,9 @@ arguments_list
   }
 
 data_structure
-  = array / object / bitwise_array / address / int / string / flag / flags
+  = array / object / bitwise_array / address / int / string / flags / flag
 
-int = [0-9]+ { return parseInt(text()); }
+int = [-0-9]+ { return parseInt(text()); }
 
 address = '0x' value:([0-9a-fA-F]*) { return parseInt(value.join(''), 16) }
 
@@ -135,7 +135,12 @@ result
   = _ '=' _ value:([^<]+) _ {
     value = value.join('').trim();
     try {
-        return Number(value);
+        var numeric = Number(value);
+        if(numeric.isNaN()) {
+            return value;
+        }
+
+        return numeric;
     } catch(e) {
         return value;
     }
