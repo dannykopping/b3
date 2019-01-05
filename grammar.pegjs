@@ -79,9 +79,11 @@ arguments_list
   }
 
 data_structure
-  = array / int / string / object / bitwise_array / flag / flags
+  = array / object / bitwise_array / address / int / string / flag / flags
 
 int = [0-9]+ { return parseInt(text()); }
+
+address = '0x' value:([0-9a-fA-F]*) { return parseInt(value.join(''), 16) }
 
 // string processing borrowed from https://github.com/pegjs/pegjs/blob/master/examples/json.pegjs
 string "string"
