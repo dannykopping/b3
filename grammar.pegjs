@@ -76,17 +76,17 @@ arguments_list
       { return [head].concat(tail); }
     )?
   {
-    // https://stackoverflow.com/a/10865042/385265
-    var flattened = [].concat.apply([], values);
-    return values !== null && values != [[]] ? flattened : [];
+    return values !== null ? values : [];
   }
 
 data_structure
-  = array / object / bitwise_array / address / int / string / flags / flag
+  = array / object / bitwise_array / address / int / string / null / flags / flag
 
 int = [-0-9]+ { return parseInt(text()); }
 
 address = '0x' value:([0-9a-fA-F]*) { return parseInt(value.join(''), 16) }
+
+null = _ "NULL" _ { return null; }
 
 // string processing borrowed from https://github.com/pegjs/pegjs/blob/master/examples/json.pegjs
 string "string"
@@ -138,7 +138,7 @@ function_call
     return text()
     }
 
-object_property = key:key _ ("=")? _ value:(function_call / quoted_value / basic_value)? {
+object_property = key:key _ ("=")? _ value:(function_call / quoted_value / basic_value / null / flags)? {
   if(value !== null && value !== '') {
     return {name: key, value: value}
   }
