@@ -73,7 +73,14 @@ arguments_list
  = values:(
     head:data_structure
     tail:("," _ value:data_structure { return value; })*
-      { return [head].concat(tail); }
+      {
+        // if both the head and tail are empty arrays, don't return an array in an array
+        if ((tail === null || tail.length <= 0) && (head === null || head.length <= 0)) {
+          return [];
+        }
+
+        return [head].concat(tail);
+      }
     )?
   {
     return values !== null ? values : [];
@@ -127,7 +134,12 @@ unescaped
 DIGIT  = [0-9]
 HEXDIG = [0-9a-f]i
 
-basic_value = value:([_a-zA-Z0-9|]+) { return value.join(''); }
+// unquoted values should either start with a lowercase letter or number, or else be considered a flag
+basic_value
+  = value:([_a-z0-9][_a-zA-Z0-9]+) {
+      var flattened = [].concat.apply([], value);
+      return flattened.join('');
+    }
 quoted_value = value:string { return value; }
 function_call
   = values:(
@@ -146,7 +158,7 @@ object_property = key:key _ ("=")? _ value:(function_call / quoted_value / basic
   return {name: key, value: key};
 }
 
-key = value:basic_value { return value; }
+key = value:[_a-zA-Z0-9]+ { return value.join(''); }
 
 arithmetic_expression = [-0-9]+ _ [+-/*] _ [-0-9]+
 
@@ -155,7 +167,7 @@ result
     value = value.join('').trim();
     try {
         var numeric = Number(value);
-        if(numeric.isNaN()) {
+        if(isNaN(numeric)) {
             return value;
         }
 

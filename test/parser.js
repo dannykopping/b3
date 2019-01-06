@@ -225,10 +225,12 @@ describe('strace output parsing', function() {
             75,
             String.raw `\20\3\0\0\20\0\1\0\0\0\0\0\0\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`,
             784,
-            'MSG_NOSIGNAL',
+            ['MSG_NOSIGNAL'],
             null,
             0
-          ]
+          ],
+          result: 784,
+          timing: null
         });
       });
     });
