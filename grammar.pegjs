@@ -1,11 +1,35 @@
 line
-  = pid:pid? syscall:syscall '(' _ args:arguments_list _ ')' result:result timing:timing? {
+  = error_line / alert_line / syscall_line
+
+// add one for strace error
+
+error_line
+  = error:error {
+      return {
+        error: error,
+        type: 'ERROR'
+      }
+    }
+
+alert_line
+  = pid:pid? alert:alert {
+      return {
+        pid: pid,
+        alert: alert,
+        type: 'ALERT'
+      }
+    }
+
+syscall_line
+  = pid:pid?
+    syscall:syscall args:arguments_list result:result timing:timing? {
     return {
         syscall: syscall,
         args: args,
         result: result,
         timing: timing,
-        pid: pid
+        pid: pid,
+        type: 'SYSCALL'
     }
   }
 
@@ -70,7 +94,7 @@ object
   { return values !== null ? values : []; }
 
 arguments_list
- = values:(
+ = '(' _ values:(
     head:data_structure
     tail:("," _ value:data_structure { return value; })*
       {
@@ -82,6 +106,7 @@ arguments_list
         return [head].concat(tail);
       }
     )?
+    _ ')'
   {
     return values !== null ? values : [];
   }
@@ -175,5 +200,9 @@ timing = _ '<' value:([\.\-0-9]+) '>' _ { return Number(value.join('')); }
 pid = ('[pid' _)? _ value:([0-9]+) _ (']')? _ { return Number(value.join('')); }
 
 ellipsis = _ '...' _
+
+alert = "+++" _ message:[^\+]+ _ "+++" { return message.join('').trim() }
+
+error = "strace:" _ error:(.+) { return error.join('').trim() }
 
 _ 'whitespace' = [ \t\n\r]* { return '.' }

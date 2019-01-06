@@ -21,7 +21,8 @@ describe('strace output parsing', function() {
           12
         ],
         result: 12,
-        timing: 0.000021
+        timing: 0.000021,
+        type: parser.syscallType
       })
     });
 
@@ -45,7 +46,8 @@ describe('strace output parsing', function() {
           12
         ],
         result: 12,
-        timing: 0.000021
+        timing: 0.000021,
+        type: parser.syscallType
       };
 
       expect(parser.parseLine(String.raw `[pid 10757] ${basic_line}`, options)).to.eql(result);
@@ -58,7 +60,8 @@ describe('strace output parsing', function() {
         syscall: 'getuid',
         args: [],
         result: 1000,
-        timing: 0.000007
+        timing: 0.000007,
+        type: parser.syscallType
       });
     });
 
@@ -68,7 +71,8 @@ describe('strace output parsing', function() {
         syscall: 'getuid',
         args: [],
         result: 1000,
-        timing: null
+        timing: null,
+        type: parser.syscallType
       });
     });
 
@@ -78,7 +82,8 @@ describe('strace output parsing', function() {
         syscall: 'close',
         args: [4],
         result: 0,
-        timing: 0.000011
+        timing: 0.000011,
+        type: parser.syscallType
       });
     });
 
@@ -118,39 +123,36 @@ describe('strace output parsing', function() {
         syscall: 'read',
         args: [10, 'something) =', 8192],
         result: 8192,
-        timing: 0.000010
+        timing: 0.000010,
+        type: parser.syscallType
       });
-    });
-
-    it('handles strace errors gracefully', function() {
-      expect(function() {
-        parser.parseLine(String.raw `strace: attach: ptrace(PTRACE_SEIZE, 1): Operation not permitted`, options)
-      }).to.throwException('Strace error!');
     });
   });
 
   describe('argument parsing', function() {
-    it('should handle syscalls with simple string arguments', function() {
+    it('handles syscalls with simple string arguments', function() {
       expect(parser.parseLine(String.raw `read(10, "1234567890", 10) = 10`, options)).to.eql({
         pid: null,
         syscall: 'read',
         args: [10, '1234567890', 10],
         result: 10,
         timing: null,
+        type: parser.syscallType
       });
     });
 
-    it('should handle syscalls with string arguments with inner quotes', function() {
+    it('handles syscalls with string arguments with inner quotes', function() {
       expect(parser.parseLine(String.raw `read(10, "123'45'6\"7\"890", 10) = 10`, options)).to.eql({
         pid: null,
         syscall: 'read',
         args: [10, '123\'45\'6\"7\"890', 10],
         result: 10,
         timing: null,
+        type: parser.syscallType
       });
     });
 
-    it('should handle syscalls with complex string arguments', function() {
+    it('handles syscalls with complex string arguments', function() {
       const line = String.raw `write(3, "invalid: \255\nkanji: \346\274\242\345\255\227", 24) = 24`;
       expect(parser.parseLine(line, options)).to.eql({
         pid: null,
@@ -158,10 +160,11 @@ describe('strace output parsing', function() {
         args: [3, String.raw `invalid: \255\nkanji: \346\274\242\345\255\227`, 24],
         result: 24,
         timing: null,
+        type: parser.syscallType
       });
     });
 
-    it('should handle syscalls with address arguments and results', function() {
+    it('handles syscalls with address arguments and results', function() {
       const line = String.raw `brk(0x55ffa15ba000) = 0x55ffa15ba000 <0.000009>`;
       expect(parser.parseLine(line, options)).to.eql({
         pid: null,
@@ -169,10 +172,11 @@ describe('strace output parsing', function() {
         args: [0x55ffa15ba000],
         result: 0x55ffa15ba000,
         timing: '0.000009',
+        type: parser.syscallType
       });
     });
 
-    it('should handle syscalls with several flags as object values', function() {
+    it('handles syscalls with several flags as object values', function() {
       const line = String.raw `poll([{fd=161, events=POLLIN|POLLOUT}], 1, -1) = 1 ([{fd=161, revents=POLLOUT}])`;
       const parsed = parser.parseLine(line, options);
       expect(parsed.args).to.eql([[{
@@ -181,13 +185,13 @@ describe('strace output parsing', function() {
         }], 1, -1]);
     });
 
-    it('should handle syscalls with a complex result value', function() {
+    it('handles syscalls with a complex result value', function() {
       const line = String.raw `poll([{fd=161, events=POLLIN|POLLOUT}], 1, -1) = 1 ([{fd=161, revents=POLLOUT}])`;
       const parsed = parser.parseLine(line, options);
       expect(parsed.result).to.eql('1 ([{fd=161, revents=POLLOUT}])');
     });
 
-    it('should handle syscall with NULL arguments', function() {
+    it('handles syscall with NULL arguments', function() {
       const line = String.raw `select(42, [41], NULL, NULL, NULL) = 1 (in [41])`
       const parsed = parser.parseLine(line, options);
       expect(parsed.args).to.eql([
@@ -200,7 +204,7 @@ describe('strace output parsing', function() {
     });
 
     describe('complex arguments & edge-cases', function() {
-      it('should handle syscalls with object values resembling function calls', function () {
+      it('handles syscalls with object values resembling function calls', function () {
         // because why the hell, not.
 
         const line = String.raw `connect(161, {sa_family=AF_INET, sin_port=htons(53), sin_addr=inet_addr("127.0.0.53")}, 16) = 0`;
@@ -216,7 +220,7 @@ describe('strace output parsing', function() {
         ]);
       });
 
-      it('should handle syscalls with an ellipsis', function () {
+      it('handles syscalls with an ellipsis', function () {
         const line = String.raw `6645  sendto(75, "\20\3\0\0\20\0\1\0\0\0\0\0\0\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 784, MSG_NOSIGNAL, NULL, 0) = 784`;
         expect(parser.parseLine(line, options)).to.eql({
           pid: 6645,
@@ -230,11 +234,12 @@ describe('strace output parsing', function() {
             0
           ],
           result: 784,
-          timing: null
+          timing: null,
+          type: parser.syscallType
         });
       });
 
-      it('should handle nested objects', function () {
+      it('handles nested objects', function () {
         const line = String.raw `6392  recvmsg(161, {msg_name=NULL, msg_namelen=0, msg_iov=[{iov_base="\3$81p\366\177\0Z\1\0\0L\0 \5\0\0\0\0\245\3*\1\246\3\372\0\20\0\1\0", iov_len=4096}], msg_iovlen=1, msg_controllen=0, msg_flags=0}, 0) = 32`;
         expect(parser.parseLine(line, options)).to.eql({
           pid: 6392,
@@ -255,14 +260,15 @@ describe('strace output parsing', function() {
             0
           ],
           result: 32,
-          timing: null
+          timing: null,
+          type: parser.syscallType
         });
       });
 
       // see https://en.wikipedia.org/wiki/Escape_sequences_in_C
       // C code to produce line:
       // `fprintf(stdout, "escape sequences: \a,\b,\f,\t,\r,\v,\\,\',\",\?,\1234,\xDK,\e,\U0001F4A9,\u6500\n");`
-      it('should handle arguments with escape sequences', function () {
+      it('handles arguments with escape sequences', function () {
         const line = String.raw `write(1, "escape sequences: \7,\10,\f,\t,\r,\v,\\,',\",?,S4,\rK,\33,\360\237\222\251,\346\224\200\n", 55) = 55`;
         const parsed = parser.parseLine(line, options);
         expect(parsed.args).to.eql([
@@ -272,5 +278,26 @@ describe('strace output parsing', function() {
         ]);
       });
     });
+  });
+});
+
+describe('strace events', function() {
+  it('handles strace alerts', function() {
+    const line = String.raw `12225 +++ exited with 0 +++`
+    const parsed = parser.parseLine(line, options);
+    expect(parsed).to.eql({
+      pid: 12225,
+      alert: 'exited with 0',
+      type: parser.alertType
+    })
+  });
+
+  it('handles strace errors', function() {
+    const line = String.raw `strace: attach: ptrace(PTRACE_SEIZE, 1): Operation not permitted`;
+    const parsed = parser.parseLine(line, options);
+    expect(parsed).to.eql({
+      error: 'attach: ptrace(PTRACE_SEIZE, 1): Operation not permitted',
+      type: parser.errorType
+    })
   });
 });
