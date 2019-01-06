@@ -108,14 +108,7 @@ char
       / "\\"
       / "/"
       / digits:DIGIT+ { return ["\\"].concat(digits).join('') }
-      / "b" { return "\\b"; }
-      / "f" { return "\\f"; }
-      / "n" { return "\\n"; }
-      / "r" { return "\\r"; }
-      / "t" { return "\\t"; }
-      / "u" digits:$(HEXDIG HEXDIG HEXDIG HEXDIG) {
-          return String.fromCharCode(parseInt(digits, 16));
-        }
+      / value:[a-zA-Z] { return "\\" + value }
     )
     { return sequence; }
 
@@ -150,8 +143,8 @@ function_call
     return text()
     }
 
-object_property = key:key _ ("=")? _ value:(function_call / quoted_value / basic_value / null / flags)? {
-  if(value !== null && value !== '') {
+object_property = key:key _ ("=")? _ value:(function_call / quoted_value / basic_value / data_structure)? {
+  if(typeof value !== 'undefined' && value !== '') {
     return {name: key, value: value}
   }
 

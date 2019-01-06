@@ -233,6 +233,44 @@ describe('strace output parsing', function() {
           timing: null
         });
       });
+
+      it('should handle nested objects', function () {
+        const line = String.raw `6392  recvmsg(161, {msg_name=NULL, msg_namelen=0, msg_iov=[{iov_base="\3$81p\366\177\0Z\1\0\0L\0 \5\0\0\0\0\245\3*\1\246\3\372\0\20\0\1\0", iov_len=4096}], msg_iovlen=1, msg_controllen=0, msg_flags=0}, 0) = 32`;
+        expect(parser.parseLine(line, options)).to.eql({
+          pid: 6392,
+          syscall: 'recvmsg',
+          args: [
+            161,
+            {
+              msg_name: null,
+              msg_namelen: 0,
+              msg_iov: [{
+                iov_base: String.raw `\3$81p\366\177\0Z\1\0\0L\0 \5\0\0\0\0\245\3*\1\246\3\372\0\20\0\1\0`,
+                iov_len: "4096"
+              }],
+              msg_iovlen: 1,
+              msg_controllen: 0,
+              msg_flags: 0
+            },
+            0
+          ],
+          result: 32,
+          timing: null
+        });
+      });
+
+      // see https://en.wikipedia.org/wiki/Escape_sequences_in_C
+      // C code to produce line:
+      // `fprintf(stdout, "escape sequences: \a,\b,\f,\t,\r,\v,\\,\',\",\?,\1234,\xDK,\e,\U0001F4A9,\u6500\n");`
+      it('should handle arguments with escape sequences', function () {
+        const line = String.raw `write(1, "escape sequences: \7,\10,\f,\t,\r,\v,\\,',\",?,S4,\rK,\33,\360\237\222\251,\346\224\200\n", 55) = 55`;
+        const parsed = parser.parseLine(line, options);
+        expect(parsed.args).to.eql([
+          1,
+          String.raw `escape sequences: \7,\10,\f,\t,\r,\v,\,',",?,S4,\rK,\33,\360\237\222\251,\346\224\200\n`,
+          55
+        ]);
+      });
     });
   });
 });
