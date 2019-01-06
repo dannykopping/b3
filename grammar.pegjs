@@ -54,10 +54,13 @@ object
   = '{'
   values:(
     head:object_property
-    tail:(',' _ value:object_property { return value; })* {
+    tail:(',' _ value:ellipsis? / value:object_property { return value; })* {
         var result = {};
 
         [head].concat(tail).forEach(function(element) {
+          if(!element.hasOwnProperty('name') || !element.hasOwnProperty('value')) {
+            return;
+          }
           result[element.name] = element.value;
         });
 
@@ -124,10 +127,26 @@ unescaped
 DIGIT  = [0-9]
 HEXDIG = [0-9a-f]i
 
-object_property
-  = ellipsis? _ key:([_a-zA-Z0-9'"]+) _ '=' _ value:(arithmetic_expression / data_structure) {
-    return {name: key.join(''), value: value}
+basic_value = value:([_a-zA-Z0-9|]+) { return value.join(''); }
+quoted_value = value:string { return value; }
+function_call
+  = values:(
+  		head:(quoted_value / basic_value) _ "(" (quoted_value / basic_value)
+        tail:(',' _ (quoted_value / basic_value))*
+        ")"?
+    ) {
+    return text()
+    }
+
+object_property = key:key _ ("=")? _ value:(function_call / quoted_value / basic_value)? {
+  if(value !== null && value !== '') {
+    return {name: key, value: value}
   }
+
+  return {name: key, value: key};
+}
+
+key = value:basic_value { return value; }
 
 arithmetic_expression = [-0-9]+ _ [+-/*] _ [-0-9]+
 
