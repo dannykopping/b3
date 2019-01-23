@@ -162,7 +162,7 @@ quoted_value = value:string { return value; }
 function_call
   = values:(
   		head:(quoted_value / basic_value) _ "(" (quoted_value / basic_value)
-        tail:(',' _ (quoted_value / basic_value))*
+        tail:([^\)])*
         ")"?
     ) {
     return text()

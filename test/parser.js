@@ -204,7 +204,7 @@ describe('strace output parsing', function() {
     });
 
     describe('complex arguments & edge-cases', function() {
-      it('handles syscalls with object values resembling function calls', function () {
+      it('handles syscalls with object values resembling function calls - single argument', function () {
         // because why the hell, not.
 
         const line = String.raw `connect(161, {sa_family=AF_INET, sin_port=htons(53), sin_addr=inet_addr("127.0.0.53")}, 16) = 0`;
@@ -217,6 +217,18 @@ describe('strace output parsing', function() {
             sin_addr: 'inet_addr("127.0.0.53")'
           },
           16
+        ]);
+      });
+      it('handles syscalls with object values resembling function calls - multiple arguments', function () {
+        // because why the hell, not.
+
+        const line = String.raw `11365 stat("/dev/pts/3", {st_rdev=makedev(136, 0)}) = 0`;
+        const parsed = parser.parseLine(line, options);
+        expect(parsed.args).to.eql([
+          '/dev/pts/3',
+          {
+            st_rdev: 'makedev(136, 0)',
+          }
         ]);
       });
 
