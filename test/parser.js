@@ -293,13 +293,10 @@ describe('strace output parsing', function() {
       it('handles key-value pairs like one would find in objects, but, like not in an object...', function() {
         const line = String.raw `11365 clone(flags=0x1234) = 12227`;
         const parsed = parser.parseLine(line, options);
-        expect(parsed.args).to.eql([
-            {
-              name: "flags",
-              value: "0x1234"
-            }
-          ]
-        );
+        expect(parsed.args).to.eql([{
+          name: "flags",
+          value: "0x1234",
+        }]);
       });
     });
   });
@@ -323,5 +320,24 @@ describe('strace events', function() {
       error: 'attach: ptrace(PTRACE_SEIZE, 1): Operation not permitted',
       type: parser.errorType
     })
+  });
+
+  it('handles stopped processes', function() {
+    const line = String.raw `[pid 20390] --- SIGSTOP {si_signo=SIGSTOP, si_code=SI_USER, si_pid=20405, si_uid=1000} ---`;
+    const parsed = parser.parseLine(line, options);
+
+    expect(parsed).to.eql({
+      pid: 20390,
+      type: parser.stoppedType,
+      alert: {
+        signal: 'SIGSTOP',
+        data: {
+          si_signo: ['SIGSTOP'],
+          si_code: ['SI_USER'],
+          si_pid: 20405,
+          si_uid: 1000
+        }
+      }
+    });
   });
 });

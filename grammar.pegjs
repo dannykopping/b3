@@ -1,5 +1,5 @@
 line
-  = error_line / alert_line / syscall_line
+  = error_line / alert_line / stopped_line / syscall_line
 
 // add one for strace error
 
@@ -17,6 +17,15 @@ alert_line
         pid: pid,
         alert: alert,
         type: 'ALERT'
+      }
+    }
+
+stopped_line
+  = pid:pid? notice:stop_notice {
+      return {
+        pid: pid,
+        alert: notice,
+        type: 'STOPPED'
       }
     }
 
@@ -203,6 +212,8 @@ pid = ('[pid' _)? _ value:([0-9]+) _ (']')? _ { return Number(value.join('')); }
 ellipsis = _ '...' _
 
 alert = "+++" _ message:[^\+]+ _ "+++" { return message.join('').trim() }
+
+stop_notice = "---" _ signal:flag _ data:data_structure _ "---" { return { signal: signal, data: data } }
 
 error = "strace:" _ error:(.+) { return error.join('').trim() }
 
