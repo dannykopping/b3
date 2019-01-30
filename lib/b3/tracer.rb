@@ -15,7 +15,7 @@ module B3
       Open3.popen3('strace', *args) do |stdin, stdout, stderr, proc_thread|
         read_thread = Thread.new do
           while (line = stderr.gets) do
-            yield Parser.parse(line.to_s), line if block_given?
+            yield Parser.execute(line.to_s), line if block_given?
           end
         end
 

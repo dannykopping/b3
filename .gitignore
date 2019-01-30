@@ -11,3 +11,6 @@
 .rspec_status
 .byebug*
 .idea
+vendor
+.bundle
+node_modules

@@ -1,59 +1,60 @@
+require 'parslet'
+
 require_relative 'errors/strace'
+require_relative 'errors/parser'
+require_relative 'models/parsed_syscall'
+require_relative 'arguments_parser'
+require_relative 'arguments'
 
 module B3
-  class Parser
-    def self.parse(line)
-      return unless line
+  class Parser < Parslet::Parser
+    include Arguments
+
+    root(:syscall_line)
+
+    rule(:syscall_line) { pid.maybe >> syscall >> arguments >> result >> timing.maybe }
+
+    rule(:pid) { (str('[pid') >> space?).maybe >> match(/[0-9]/).repeat(1).as(:pid) >> (space? >> str(']')).maybe >> space? }
+
+    rule(:syscall) { space? >> match(/[_a-zA-Z][_a-zA-Z0-9'"]*/).repeat.as(:syscall) >> space? }
+
+    rule(:arguments) {
+      space? >> str('(') >> argument_list.repeat.as(:arguments) >> str(')')
+    }
+
+    rule(:result) { space? >> str('=') >> space? >> (str('<').absent? >> any).repeat.as(:result) >> space? }
+
+    rule(:timing) { space? >> str('<') >> match(/[.0-9]/).repeat.as(:timing) >> str('>') >> space? }
+
+    rule(:space?) { match(/\s/).repeat }
+
+
+
+    def self.execute(line, debug: false)
+      raise B3::Error::ParserError, 'Empty line' unless line
 
       raise B3::Error::Strace.new('strace encountered an error', line) if line.start_with?('strace:')
 
-      data = line.scrub.match(pattern)
-      return unless data.is_a?(MatchData)
+      parsed = self.new.parse(line)
 
-      parsed = data.named_captures
-      return nil unless parsed
+      # may contain some whitespace which is probably unavoidable,
+      # since the :result can have spaces in it, and timing is optional
+      parsed[:result] = parsed[:result].to_s.strip
 
-      parsed['args'] = split_args(parsed['args'])
-      parsed
+      transform_result(parsed)
+    rescue Parslet::ParseFailed => e
+      # suppress exceptions unless `debug` flag is passed
+      return nil unless debug
+
+      raise B3::Error::ParserError.new('Failed to match pattern', e.parse_failure_cause)
     end
 
     private
 
-    def self.pattern
-      # see tests @ https://regex101.com/r/amYK9q/2
-      /
-        ^
-        (?:\[pid\s*)?(?<pid>\d+)?(?:\]?)\s*      # The PID of the process under trace (optional, missing if no fork)
-        (?<syscall>[^\(]*)                       # The syscall's name
-        \s*\(
-        (?<args>[^\)]*)?\s*\)                    # The arguments passed to the syscall
-        \s*=\s*
-        (?<result>[^<]*)                         # The result of the syscall
-        \s*
-        (?:<(?<time>[\d\.]+)>)?                  # The processing time of the syscall
-        $
-      /mx
-    end
-
-    def self.split_args(args)
-      # H/T to https://stackoverflow.com/a/18893443/385265
-      split = args.strip.split(/
-        ,           # Split on comma
-        (?=         # Followed by
-           (?:      # Start a non-capture group
-             [^{}"]*  # 0 or more non-quote characters
-             (?:{|}|")      # 1 quote
-             [^{}"]*  # 0 or more non-quote characters
-             (?:{|}|")      # 1 quote
-           )*       # 0 or more repetition of non-capture group (multiple of 2 quotes will be even)
-           [^{}"]*    # Finally 0 or more non-quotes
-           $        # Till the end  (This is necessary, else every comma will satisfy the condition)
-        )
-      /x)
-
-      return [] unless split
-
-      split.map { |arg| arg.to_s.strip }
+    def self.transform_result(parsed)
+      args = Transformer.new.apply(parsed[:arguments])
+      parsed[:arguments] = args
+      Model::ParsedSyscall.new(parsed).freeze
     end
   end
 end
