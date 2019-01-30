@@ -20,7 +20,7 @@ jobs: # a collection of steps
             - ./node_modules
       - run: # run tests
           name: test
-          command: pegjs -o strace-parser.js grammar.pegjs && DEBUG=true mocha
+          command: ./node_modules/.bin/pegjs -o strace-parser.js grammar.pegjs && TRACE=true DEBUG=true ./node_modules/.bin/mocha
       - store_artifacts: # special step to save test results as as artifact
           # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
           path: test-results.xml
