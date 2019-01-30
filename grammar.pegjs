@@ -114,6 +114,12 @@ struct_property
       return {name: key, value: key};
     }
 
+// separated by spaces, not commas - very strange
+pseudo_struct
+  = '{' value:[^\}]+ '}' {
+  return value.join('').split(/\s+/)
+}
+
 key "key"
   = value:[_a-z0-9]+ { return value.join(''); }
 

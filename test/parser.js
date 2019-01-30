@@ -298,6 +298,12 @@ describe('strace output parsing', function() {
           value: "0x1234",
         }]);
       });
+
+      it('handles strange ioctl format', function() {
+        const line = String.raw `11365 ioctl(16, TCGETS, {B38400 opost isig icanon echo ...}) = 0`;
+        const parsed = parser.parseLine(line, options);
+        expect(parsed.args).to.eql([16, ['TCGETS'], ['B38400', 'opost', 'isig', 'icanon', 'echo', '...']]);
+      });
     });
   });
 });
