@@ -45,6 +45,9 @@ syscall_line
 syscall
   = _ value:([_a-zA-Z0-9'"]+) { return value.join(''); }
 
+data_structure
+  = array / struct / pseudo_struct / bitwise_array / address / int / string / struct_property / null / flags / flag
+
 array
   = '['
   values:(
@@ -83,11 +86,11 @@ flags
     )?
   { return values !== null ? values : []; }
 
-object
+struct
   = '{'
   values:(
-    head:object_property
-    tail:(',' _ value:ellipsis? / value:object_property { return value; })* {
+    head:struct_property
+    tail:(',' _ value:ellipsis? / value:struct_property { return value; })* {
         var result = {};
 
         [head].concat(tail).forEach(function(element) {
@@ -101,6 +104,24 @@ object
     })?
   '}'
   { return values !== null ? values : []; }
+
+struct_property
+  = key:(key / capitalised_key) _ ("=")? _ value:(function_call / quoted_value / basic_value / data_structure)? {
+      if(typeof value !== 'undefined' && value !== '') {
+        return {name: key, value: value}
+      }
+
+      return {name: key, value: key};
+    }
+
+key "key"
+  = value:[_a-z0-9]+ { return value.join(''); }
+
+capitalised_key "capitalised key"
+  = value:([A-Z][_a-z0-9])+ {
+      var flattened = [].concat.apply([], value);
+      return flattened.join('');
+    }
 
 arguments_list
  = '(' _ values:(
@@ -119,9 +140,6 @@ arguments_list
   {
     return values !== null ? values : [];
   }
-
-data_structure
-  = array / object / bitwise_array / address / int / string / object_property / null / flags / flag
 
 int = [-0-9]+ { return parseInt(text()); }
 
@@ -176,17 +194,6 @@ function_call
     ) {
     return text()
     }
-
-object_property = key:key _ ("=")? _ value:(function_call / quoted_value / basic_value / data_structure)? {
-  if(typeof value !== 'undefined' && value !== '') {
-    return {name: key, value: value}
-  }
-
-  return {name: key, value: key};
-}
-
-key "key"
-  = value:[_a-z0-9]+ { return value.join(''); }
 
 arithmetic_expression = [-0-9]+ _ [+-/*] _ [-0-9]+
 
