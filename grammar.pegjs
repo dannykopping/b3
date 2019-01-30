@@ -130,7 +130,7 @@ capitalised_key "capitalised key"
     }
 
 arguments_list
- = '(' _ values:(
+  = '(' _ values:(
     head:data_structure
     tail:("," _ value:data_structure { return value; })*
       {
@@ -142,10 +142,13 @@ arguments_list
         return [head].concat(tail);
       }
     )?
-    _ ')'
+    _ arguments_list_abbreviation _ ')'
   {
     return values !== null ? values : [];
   }
+
+arguments_list_abbreviation
+  = ("/*" _ [0-9]+ _ "vars */")?
 
 int = [-0-9]+ { return parseInt(text()); }
 

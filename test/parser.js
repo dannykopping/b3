@@ -304,6 +304,12 @@ describe('strace output parsing', function() {
         const parsed = parser.parseLine(line, options);
         expect(parsed.args).to.eql([16, ['TCGETS'], ['B38400', 'opost', 'isig', 'icanon', 'echo', '...']]);
       });
+
+      it('handles abbreviated arguments', function() {
+        const line = String.raw `execve("/usr/bin/xdg-open", ["xdg-open", "."], 0x7ffdb094c968 /* 54 vars */) = 0`;
+        const parsed = parser.parseLine(line, options);
+        expect(parsed.args).to.eql(['/usr/bin/xdg-open', ['xdg-open', '.'], 0x7ffdb094c968]);
+      });
     });
   });
 });
