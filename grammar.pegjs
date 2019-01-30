@@ -112,7 +112,7 @@ arguments_list
   }
 
 data_structure
-  = array / object / bitwise_array / address / int / string / null / flags / flag
+  = array / object / bitwise_array / address / int / string / object_property / null / flags / flag
 
 int = [-0-9]+ { return parseInt(text()); }
 
@@ -176,7 +176,8 @@ object_property = key:key _ ("=")? _ value:(function_call / quoted_value / basic
   return {name: key, value: key};
 }
 
-key = value:[_a-zA-Z0-9]+ { return value.join(''); }
+key "key"
+  = value:[_a-z0-9]+ { return value.join(''); }
 
 arithmetic_expression = [-0-9]+ _ [+-/*] _ [-0-9]+
 

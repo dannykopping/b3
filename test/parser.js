@@ -289,6 +289,18 @@ describe('strace output parsing', function() {
           55
         ]);
       });
+
+      it('handles key-value pairs like one would find in objects, but, like not in an object...', function() {
+        const line = String.raw `11365 clone(flags=0x1234) = 12227`;
+        const parsed = parser.parseLine(line, options);
+        expect(parsed.args).to.eql([
+            {
+              name: "flags",
+              value: "0x1234"
+            }
+          ]
+        );
+      });
     });
   });
 });
