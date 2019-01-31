@@ -310,6 +310,12 @@ describe('strace output parsing', function() {
         const parsed = parser.parseLine(line, options);
         expect(parsed.args).to.eql(['/usr/bin/xdg-open', ['xdg-open', '.'], 0x7ffdb094c968]);
       });
+
+      it('handles alternate flag list display', function() {
+        const line = String.raw `[pid  2227] rt_sigprocmask(SIG_UNBLOCK, [RTMIN RT_1], NULL, 8) = 0 <0.000006>`;
+        const parsed = parser.parseLine(line, options);
+        expect(parsed.args).to.eql([['SIG_UNBLOCK'], ['RTMIN', 'RT_1'], null, 8]);
+      });
     });
   });
 });

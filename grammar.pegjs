@@ -46,7 +46,7 @@ syscall
   = _ value:([_a-zA-Z0-9'"]+) { return value.join(''); }
 
 data_structure
-  = array / struct / pseudo_struct / bitwise_array / address / int / string / struct_property / null / flags / flag
+  = array / struct / pseudo_struct / bitwise_array / address / int / string / struct_property / flags_alternate / null / flags / flag
 
 array
   = '['
@@ -84,6 +84,18 @@ flags
     tail:('|' _ value:flag { return value; })*
       { return [head].concat(tail); }
     )?
+  { return values !== null ? values : []; }
+
+flags_alternate
+  = '['
+  values:(
+    head:flag
+    tail:(_ value:flag { return value; })*
+      {
+        return [head].concat(tail);
+      }
+    )?
+  ']'
   { return values !== null ? values : []; }
 
 struct
