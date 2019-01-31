@@ -46,7 +46,16 @@ syscall
   = _ value:([_a-zA-Z0-9'"]+) { return value.join(''); }
 
 data_structure
-  = array / struct / pseudo_struct / bitwise_array / address / int / string / struct_property / flags_alternate / null / flags / flag
+  = array /
+    struct / pseudo_struct /
+    bitwise_array /
+    address /
+    int /
+    string /
+    socket / socket_address_length /
+    struct_property /
+    null /
+    flags_alternate / flags / flag
 
 array
   = '['
@@ -171,6 +180,18 @@ null = _ "NULL" _ { return null; }
 // string processing borrowed from https://github.com/pegjs/pegjs/blob/master/examples/json.pegjs
 string "string"
   = _ quotation_mark chars:char* quotation_mark ellipsis? { return chars.join(""); }
+
+socket
+  = "@" path:string { return path }
+
+// find better names for all of this
+socket_address_length
+  = "[" ulen:([0-9]+) "->" rlen:([0-9]+) "]" {
+    return {
+      ulen: parseInt(ulen.join('')),
+      rlen: parseInt(rlen.join(''))
+    }
+  }
 
 char
   = unescaped

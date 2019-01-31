@@ -316,6 +316,12 @@ describe('strace output parsing', function() {
         const parsed = parser.parseLine(line, options);
         expect(parsed.args).to.eql([['SIG_UNBLOCK'], ['RTMIN', 'RT_1'], null, 8]);
       });
+
+      it('handles socket display', function() {
+        const line = String.raw `getpeername(3, {sa_family=AF_UNIX, sun_path=@"/tmp/.X11-unix/X0"}, [124->20]) = 0 <0.000010>`;
+        const parsed = parser.parseLine(line, options);
+        expect(parsed.args).to.eql([3, {sa_family: ['AF_UNIX'], sun_path: '/tmp/.X11-unix/X0'}, {ulen: 124, rlen: 20}]);
+      });
     });
   });
 });
