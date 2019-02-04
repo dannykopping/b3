@@ -311,6 +311,12 @@ describe('strace output parsing', function() {
         expect(parsed.args).to.eql(['/usr/bin/xdg-open', ['xdg-open', '.'], 0x7ffdb094c968]);
       });
 
+      it('handles abbreviated entries', function() {
+        const line = String.raw `12056 getdents(7, /* 9 entries */, 32768) = 344 <0.000017>`;
+        const parsed = parser.parseLine(line, options);
+        expect(parsed.args).to.eql([7, '...', 32768]);
+      });
+
       it('handles alternate flag list display', function() {
         const line = String.raw `[pid  2227] rt_sigprocmask(SIG_UNBLOCK, [RTMIN RT_1], NULL, 8) = 0 <0.000006>`;
         const parsed = parser.parseLine(line, options);

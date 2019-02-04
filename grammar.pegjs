@@ -153,7 +153,7 @@ capitalised_key "capitalised key"
 arguments_list
   = '(' _ values:(
     head:data_structure
-    tail:("," _ value:data_structure { return value; })*
+    tail:("," _ value:(arguments_list_abbreviation / data_structure) { return value; })*
       {
         // if both the head and tail are empty arrays, don't return an array in an array
         if ((tail === null || tail.length <= 0) && (head === null || head.length <= 0)) {
@@ -163,13 +163,13 @@ arguments_list
         return [head].concat(tail);
       }
     )?
-    _ arguments_list_abbreviation _ ')'
+    _ arguments_list_abbreviation? _ ')'
   {
     return values !== null ? values : [];
   }
 
 arguments_list_abbreviation
-  = ("/*" _ [0-9]+ _ "vars */")?
+  = ("/*" _ [0-9]+ _ ("vars" / "entries") _ "*/") { return '...'; }
 
 int = [-0-9]+ { return parseInt(text()); }
 
