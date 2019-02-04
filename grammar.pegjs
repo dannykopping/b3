@@ -210,7 +210,7 @@ char
       /  "'"
       / "\\"
       / "/"
-      / digits:DIGIT+ { return ["\\"].concat(digits).join('') }
+      / digits:digit+ { return ["\\"].concat(digits).join('') }
       / value:[a-zA-Z] { return "\\" + value }
     )
     { return sequence; }
@@ -224,11 +224,8 @@ quotation_mark
 unescaped
   = [^\0-\x1F\x22\x5C]
 
-// ----- Core ABNF Rules -----
-
-// See RFC 4234, Appendix B (http://tools.ietf.org/html/rfc4234).
-DIGIT  = [0-9]
-HEXDIG = [0-9a-f]i
+digit  = [0-9]
+hex_digit = [0-9a-f]i
 
 // unquoted values should either start with a lowercase letter or number, or else be considered a flag
 basic_value
