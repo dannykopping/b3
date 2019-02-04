@@ -96,12 +96,21 @@ flags
   { return values !== null ? values : []; }
 
 flags_alternate
-  = '['
+  = operator:([~^])? '['
   values:(
     head:flag
     tail:(_ value:flag { return value; })*
       {
-        return [head].concat(tail);
+        var elements = [head].concat(tail);
+
+        if(operator) {
+          return {
+            operator: operator,
+            elements: elements
+          }
+        }
+
+        return elements;
       }
     )?
   ']'

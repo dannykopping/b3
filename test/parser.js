@@ -323,6 +323,12 @@ describe('strace output parsing', function() {
         expect(parsed.args).to.eql([['SIG_UNBLOCK'], ['RTMIN', 'RT_1'], null, 8]);
       });
 
+      it('handles alternate flag list display with a bitwise operator', function() {
+        const line = String.raw `[pid  2227] rt_sigprocmask(SIG_UNBLOCK, ~[RTMIN RT_1], NULL, 8) = 0 <0.000006>`;
+        const parsed = parser.parseLine(line, options);
+        expect(parsed.args).to.eql([['SIG_UNBLOCK'], { operator:'~', elements:['RTMIN', 'RT_1'] }, null, 8]);
+      });
+
       it('handles socket display', function() {
         const line = String.raw `getpeername(3, {sa_family=AF_UNIX, sun_path=@"/tmp/.X11-unix/X0"}, [124->20]) = 0 <0.000010>`;
         const parsed = parser.parseLine(line, options);
