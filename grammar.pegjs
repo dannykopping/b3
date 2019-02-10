@@ -95,7 +95,7 @@ flag = _ value:[_A-Z0-9]+ _ { return value.join(''); }
 flags
   = values:(
     head:flag
-    tail:('|' _ value:flag { return value; })*
+    tail:(('|' / 'or') _ value:flag { return value; })*
       { return [head].concat(tail); }
     )?
   { return values !== null ? values : []; }

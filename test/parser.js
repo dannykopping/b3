@@ -331,10 +331,16 @@ describe('strace output parsing', function() {
         expect(parsed.args).to.eql([7, '...', 32768]);
       });
 
-      it('handles alternate flag list display', function() {
+      it('handles alternate flag list display (space)', function() {
         const line = String.raw `[pid  2227] rt_sigprocmask(SIG_UNBLOCK, [RTMIN RT_1], NULL, 8) = 0 <0.000006>`;
         const parsed = parser.parseLine(line, options);
         expect(parsed.args).to.eql([['SIG_UNBLOCK'], ['RTMIN', 'RT_1'], null, 8]);
+      });
+
+      it('handles alternate flag list display (or literal)', function() {
+        const line = String.raw `10827 ioctl(6, DRM_IOCTL_I915_GETPARAM or DRM_IOCTL_TEGRA_CLOSE_CHANNEL, 0x7ffcc9dd2d80) = 0 <0.000009>`;
+        const parsed = parser.parseLine(line, options);
+        expect(parsed.args).to.eql([6, ['DRM_IOCTL_I915_GETPARAM', 'DRM_IOCTL_TEGRA_CLOSE_CHANNEL'], 0x7ffcc9dd2d80]);
       });
 
       it('handles alternate flag list display with a bitwise operator', function() {
