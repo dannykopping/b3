@@ -1,11 +1,13 @@
-var expect = require('expect.js');
-var parser = require('../lib/parser.js');
-var errors = require('../lib/errors.js');
+const expect = require('expect.js');
+const parser = require('../lib/parser.js');
+const errors = require('../lib/errors.js');
 
 var options = {
   debug: process.env.DEBUG == 'true',
   trace: process.env.TRACE == 'true',
 };
+
+parser.initialize();
 
 describe('strace output parsing', function() {
   describe('basic functionality', function() {
@@ -99,10 +101,6 @@ describe('strace output parsing', function() {
           parser.parseLine(String.raw`7016  futex(0x7ff23c537108, FUTEX_WAIT_PRIVATE, 0, {tv_sec=0, tv_nsec=12399422} <unfinished ...>`, options).to.eql(null);s
         } catch(e) {}
       })
-    });
-
-    it('fails silently if debug mode is disable and given line is invalid', function() {
-      expect(parser.parseLine(String.raw `...invalid...`, {debug:false})).to.eql(null);
     });
 
     it('throws an exception if debug mode is enabled and given line is invalid', function() {

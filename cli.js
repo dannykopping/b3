@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 // package deps
 const program = require('commander'),
-  fs = require("fs"),
   readline = require('readline'),
-  peg = require('pegjs'),
   debug = require('debug')('b3');
 
 // library deps
@@ -16,10 +14,7 @@ program
   .option('-s, --stop-on-fail', 'Stop on parser failure', false)
   .parse(process.argv);
 
-const grammar = fs.readFileSync('grammar.pegjs', 'utf8');
-const pegParser = peg.generate(grammar, {cache: true, optimize: 'speed'});
-
-parser.initialize(pegParser);
+parser.initialize();
 
 const rl = readline.createInterface({
   input: process.stdin,
