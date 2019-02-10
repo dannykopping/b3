@@ -1,6 +1,4 @@
-# B3
-
-Unit tests: [![CircleCI](https://circleci.com/gh/dannykopping/b3/tree/master.svg?style=svg)](https://circleci.com/gh/dannykopping/b3/tree/master)
+# B3 [![CircleCI](https://circleci.com/gh/dannykopping/b3/tree/master.svg?style=svg)](https://circleci.com/gh/dannykopping/b3/tree/master)
 
 ## Purpose
 
@@ -21,5 +19,5 @@ I love this utility and use it all the time, and wanted to learn more about it.
 ### Why not do this in C?
 
   1. I don't know C
-  2. I invite you to examine the [glorious mess](https://github.com/strace/strace/search?q=printf&unscoped_q=printf) that is this nearly 30-year old edifice
+  2. I invite you to examine the [glorious mess](https://github.com/strace/strace/search?q=tprintf&unscoped_q=tprintf) that is this nearly 30-year old edifice
   3. Many people have tried and failed/given up, and I'm neither smarter nor more persistent than them
