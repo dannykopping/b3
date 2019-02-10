@@ -52,6 +52,7 @@ data_structure
     bitwise_array /
     address /
     socket /
+    function_call /
     int /
     string /
     struct_property /
@@ -60,13 +61,16 @@ data_structure
 
 array
   = '['
-  values:(
-    head:data_structure
-    tail:(',' _ value:data_structure { return value; })*
-      { return [head].concat(tail); }
-    )?
+    values:array_elements
   ']'
   { return values !== null ? values : []; }
+
+array_elements
+  = (
+    head:data_structure
+    tail:(',' _ value:data_structure { return value; })*
+    { return [head].concat(tail); }
+  )?
 
 bitwise_array
   = values:(
@@ -248,15 +252,15 @@ basic_value
       var flattened = [].concat.apply([], value);
       return flattened.join('');
     }
+
 quoted_value = value:string { return value; }
 function_call
   = values:(
-  		head:(quoted_value / basic_value) _ "(" (quoted_value / basic_value)
-        tail:([^\)])*
-        ")"?
-    ) {
-    return text()
-    }
+  		function_name:basic_value
+      _ "(" params:array_elements
+        ([^\)])*
+      ")" { return {function: function_name, params: params} }
+    )
 
 arithmetic_expression = [-0-9]+ _ [+-/*] _ [-0-9]+
 

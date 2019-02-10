@@ -204,6 +204,12 @@ describe('strace output parsing', function() {
     });
 
     describe('complex arguments & edge-cases', function() {
+      it('handles syscalls with values resembling function calls', function() {
+        const line = String.raw `10808 recvmsg(6, [{{nla_len=8, nla_type=RTA_OIF}, if_nametoindex("wlx503eaa54c52c")}]) = 1328 <0.000017>`;
+        const parsed = parser.parseLine(line, options);
+        expect(parsed.args).to.eql([6, [[{nla_len: 8, nla_type: ['RTA_OIF']}, {function:'if_nametoindex', params: ['wlx503eaa54c52c']}]]]);
+      });
+
       it('handles syscalls with object values resembling function calls - single argument', function () {
         // because why the hell, not.
 
@@ -213,12 +219,13 @@ describe('strace output parsing', function() {
           161,
           {
             sa_family: ['AF_INET'],
-            sin_port: 'htons(53)',
-            sin_addr: 'inet_addr("127.0.0.53")'
+            sin_port: {function: 'htons', params: [53]},
+            sin_addr: {function: 'inet_addr', params: ['127.0.0.53']},
           },
           16
         ]);
       });
+
       it('handles syscalls with object values resembling function calls - multiple arguments', function () {
         // because why the hell, not.
 
@@ -227,7 +234,7 @@ describe('strace output parsing', function() {
         expect(parsed.args).to.eql([
           '/dev/pts/3',
           {
-            st_rdev: 'makedev(136, 0)',
+            st_rdev: {function: 'makedev', params: [136, 0]},
           }
         ]);
       });
