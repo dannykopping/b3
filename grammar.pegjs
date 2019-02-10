@@ -48,7 +48,7 @@ syscall
 data_structure
   = socket_address_length_enclosed / socket_address_length /
     array /
-    struct / pseudo_struct /
+    nested_struct / struct / pseudo_struct /
     bitwise_array /
     address /
     socket /
@@ -116,6 +116,9 @@ flags_alternate
     )?
   ']'
   { return values !== null ? values : []; }
+
+nested_struct
+  = '{' data:struct '}' { return data }
 
 struct
   = '{'

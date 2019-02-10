@@ -277,6 +277,13 @@ describe('strace output parsing', function() {
         });
       });
 
+      // i.e. objects without keys
+      it('handles anonymous nested objects', function() {
+        const line = String.raw `10808 recvmsg(6, [{{nla_len=8, nla_type=RTA_TABLE}}]) = 1328 <0.000017>`;
+        const parsed = parser.parseLine(line, options);
+        expect(parsed.args).to.eql([6, [{nla_len: 8, nla_type: ['RTA_TABLE']}]]);
+      });
+
       // see https://en.wikipedia.org/wiki/Escape_sequences_in_C
       // C code to produce line:
       // `fprintf(stdout, "escape sequences: \a,\b,\f,\t,\r,\v,\\,\',\",\?,\1234,\xDK,\e,\U0001F4A9,\u6500\n");`
