@@ -46,13 +46,14 @@ syscall
   = _ value:([_a-zA-Z0-9'"]+) { return value.join(''); }
 
 data_structure
-  = array /
+  = socket_address_length_enclosed / socket_address_length /
+    array /
     struct / pseudo_struct /
     bitwise_array /
     address /
+    socket /
     int /
     string /
-    socket / socket_address_length /
     struct_property /
     null /
     flags_alternate / flags / flag
@@ -136,7 +137,7 @@ struct
   { return values !== null ? values : []; }
 
 struct_property
-  = key:(key / capitalised_key) _ ("=")? _ value:(function_call / quoted_value / basic_value / data_structure)? {
+  = key:(key / capitalised_key) _ ("=")? _ value:(function_call / quoted_value / data_structure / basic_value)? {
       if(typeof value !== 'undefined' && value !== '') {
         return {name: key, value: value}
       }
@@ -193,9 +194,11 @@ string "string"
 socket
   = "@" path:string { return path }
 
-// find better names for all of this
+socket_address_length_enclosed
+  = "[" data:socket_address_length "]" { return data }
+
 socket_address_length
-  = "[" ulen:([0-9]+) "->" rlen:([0-9]+) "]" {
+  = ulen:([0-9]+) "->" rlen:([0-9]+) {
     return {
       ulen: parseInt(ulen.join('')),
       rlen: parseInt(rlen.join(''))
