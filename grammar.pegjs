@@ -118,7 +118,16 @@ flags_alternate
   { return values !== null ? values : []; }
 
 nested_struct
-  = '{' data:struct '}' { return data }
+  = '{'
+    values:(
+      head:struct
+      tail:(',' _ value:data_structure { return value })? {
+        return [head].concat([tail]);
+      }
+    )?
+  '}' {
+    return values;
+  }
 
 struct
   = '{'
@@ -278,4 +287,4 @@ stop_notice = "---" _ signal:flag _ data:data_structure _ "---" { return { signa
 
 error = "strace:" _ error:(.+) { return error.join('').trim() }
 
-_ 'whitespace' = [ \t\n\r]* { return '.' }
+_ 'whitespace' = [ \t\n\r]* { return undefined }

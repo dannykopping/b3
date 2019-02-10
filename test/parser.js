@@ -279,9 +279,9 @@ describe('strace output parsing', function() {
 
       // i.e. objects without keys
       it('handles anonymous nested objects', function() {
-        const line = String.raw `10808 recvmsg(6, [{{nla_len=8, nla_type=RTA_TABLE}}]) = 1328 <0.000017>`;
+        const line = String.raw `10808 recvmsg(6, [{{nla_len=8, nla_type=RTA_TABLE}, RT_TABLE_MAIN}]) = 1328 <0.000017>`;
         const parsed = parser.parseLine(line, options);
-        expect(parsed.args).to.eql([6, [{nla_len: 8, nla_type: ['RTA_TABLE']}]]);
+        expect(parsed.args).to.eql([6, [[{nla_len: 8, nla_type: ['RTA_TABLE']}, ['RT_TABLE_MAIN']]]]);
       });
 
       // see https://en.wikipedia.org/wiki/Escape_sequences_in_C
