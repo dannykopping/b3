@@ -50,7 +50,7 @@ data_structure
     array /
     nested_struct / struct / pseudo_struct /
     bitwise_array /
-    address /
+    ip_address / address /
     socket /
     function_call /
     int /
@@ -198,6 +198,9 @@ arguments_list_abbreviation
   = ("/*" _ [0-9]+ _ ("vars" / "entries") _ "*/") { return '...'; }
 
 int = [-0-9]+ { return parseInt(text()); }
+
+ip_address "ip address"
+  = [0-9]+ "." [0-9]+ "." [0-9]+ "." [0-9]+ { return text() }
 
 address = '0x' value:([0-9a-fA-F]*) { return parseInt(value.join(''), 16) }
 
