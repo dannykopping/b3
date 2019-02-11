@@ -14,6 +14,19 @@ Using **npm**: `npm i -g b3-strace-parser`
 
 or download the [latest release](https://github.com/dannykopping/b3/releases)
 
+## Usage
+
+```bash
+strace -f -p 1234 |& b3
+# The "|&" is a shortcut for "2>&1 |" from Bash 4.0 (pipe stdout AND stderr to next program)
+```
+
+For extra tastiness, combine with [`jq`](https://stedolan.github.io/jq/)
+
+```bash
+strace -f -p 1234 |& b3 | jq '' -c
+```
+
 ### Um, why?
 
 Well, that's up to you. I figured that this output is so information-dense that it has to be useful in a structured format.
