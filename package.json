@@ -1,7 +1,7 @@
 {
   "name": "b3",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.1.0",
+  "description": "strace to json parser",
   "main": "cli.js",
   "directories": {
     "test": "test"
