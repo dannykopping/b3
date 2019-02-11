@@ -4,9 +4,15 @@
 
 This project's goal is to parse the famously impenetrable `strace` output into JSON.
 
-## Getting Started
+## Demo
 
-TODO
+[![asciicast](https://asciinema.org/a/226608.svg)](https://asciinema.org/a/226608)
+
+## Installation
+
+Using **npm**: `npm i -g b3-strace-parser`
+
+or download the [latest release](https://github.com/dannykopping/b3/releases)
 
 ### Um, why?
 
