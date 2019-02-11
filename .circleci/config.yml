@@ -1,8 +1,64 @@
 version: 2
 jobs:
-  build:
-    dubnium-10.x:
+  10.x:
+    docker:
       - image: circleci/node:10.15
+    steps:
+      - checkout
+      - run:
+          name: update-npm
+          command: 'sudo npm install -g npm@latest'
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: install-npm
+          command: npm install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: test
+          command: ./node_modules/.bin/mocha
+      - store_artifacts:
+          path: test-results.xml
+          prefix: tests
+      - store_artifacts:
+          path: coverage
+          prefix: coverage
+      - store_test_results:
+          path: test-results.xml
+  9.x:
+    docker:
+      - image: circleci/node:9.11
+    steps:
+      - checkout
+      - run:
+          name: update-npm
+          command: 'sudo npm install -g npm@latest'
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: install-npm
+          command: npm install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: test
+          command: ./node_modules/.bin/mocha
+      - store_artifacts:
+          path: test-results.xml
+          prefix: tests
+      - store_artifacts:
+          path: coverage
+          prefix: coverage
+      - store_test_results:
+          path: test-results.xml
+  8.x:
+    docker:
+      - image: circleci/node:8.15
     steps:
       - checkout
       - run:
@@ -33,4 +89,6 @@ workflows:
   version: 2
   build:
     jobs:
-      - dubnium-10.x
+      - 10.x
+      - 9.x
+      - 8.x
