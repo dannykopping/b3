@@ -10,8 +10,10 @@
     "commander": "^2.19.0",
     "debug": "^4.1.1",
     "expect.js": "^0.3.1",
+    "nexe": "^2.0.0-rc.34",
     "node-exceptions": "^4.0.1",
-    "pegjs": "^0.10.0"
+    "pegjs": "^0.10.0",
+    "typescript": "^3.3"
   },
   "devDependencies": {
     "mocha": "^5.2.0",

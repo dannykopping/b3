@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 // package deps
 const program = require('commander'),
   readline = require('readline'),
@@ -7,10 +6,10 @@ const program = require('commander'),
 // library deps
 const parser = require('./lib/parser.js'),
   errors = require('./lib/errors.js'),
-  package = require('./package.json');
+  packageDetails = require('./package.json');
 
 program
-  .version(package.version)
+  .version(packageDetails.version)
   .option('-s, --stop-on-fail', 'Stop on parser failure', false)
   .parse(process.argv);
 
