@@ -6,6 +6,7 @@
   "bin": {
     "b3": "./cli.js"
   },
+  "engines": { "node": ">=8.10" },
   "keywords": ["strace"],
   "preferGlobal": true,
   "directories": {
