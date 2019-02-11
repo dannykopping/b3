@@ -1,6 +1,6 @@
 {
   "name": "b3-strace-parser",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "strace to json parser",
   "main": "cli.js",
   "bin": {
@@ -12,12 +12,12 @@
     "test": "test",
     "lib": "lib"
   },
-  "files": ["grammar.pegjs"],
+  "files": ["grammar.pegjs", "lib/"],
   "dependencies": {
     "commander": "^2.19.0",
     "debug": "^4.1.1",
     "expect.js": "^0.3.1",
-    "nexe": "^2.0.0-rc.34",
+    "nexe": "^3.0.0-beta",
     "node-exceptions": "^4.0.1",
     "pegjs": "^0.10.0",
     "typescript": "^3.3"
