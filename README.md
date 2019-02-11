@@ -1,4 +1,4 @@
-# B3 [![CircleCI](https://circleci.com/gh/dannykopping/b3/tree/master.svg?style=svg)](https://circleci.com/gh/dannykopping/b3/tree/master)
+# B3 [![CircleCI](https://img.shields.io/circleci/project/github/dannykopping/b3/master.svg?logo=b3&style=flat)](https://circleci.com/gh/dannykopping/b3/tree/master)
 
 ## Purpose
 
