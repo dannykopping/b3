@@ -6,6 +6,7 @@ TOKEN=$1
 
 which nexe 1>/dev/null || { echo "cannot find nexe binary to prepare static build, exiting..."; exit 3; }
 which ghr  1>/dev/null || { echo "cannot find ghr binary to publish github release, exiting..."; exit 3; }
+which npm  1>/dev/null || { echo "cannot find npm binary to publish package, exiting..."; exit 3; }
 
 rm -rf build/
 
@@ -17,12 +18,11 @@ fi
 
 mkdir -p build/$version
 
+echo "publishing to npm"
+npm publish || { echo "publishing to npm failed, exiting..."; exit 1; }
+
 echo "compiling static build of version ${version}"
-nexe -i cli.js -o build/${version}/b3 -r grammar.pegjs
+nexe -i cli.js -o build/${version}/b3 -r grammar.pegjs || { echo "build failed, exiting..."; exit 1; }
 
-if [[ $? != 0 ]]; then
-    echo "build failed, exiting..."
-    exit 1
-fi
-
-ghr -t $TOKEN -u dannykopping -r b3 -soft $version ./build/$version/b3
+echo "publishing build to github"
+ghr -t $TOKEN -u dannykopping -r b3 -soft $version ./build/$version/b3 || { echo "publishing build failed, exiting..."; exit 1; }
