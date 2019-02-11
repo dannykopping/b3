@@ -1,8 +1,13 @@
 {
   "name": "b3-strace-parser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "strace to json parser",
   "main": "cli.js",
+  "bin": {
+    "b3": "./cli.js"
+  },
+  "keywords": ["strace"],
+  "preferGlobal": true,
   "directories": {
     "test": "test",
     "lib": "lib"
@@ -28,7 +33,11 @@
     "type": "git",
     "url": "git+https://github.com/dannykopping/b3.git"
   },
-  "author": "Danny Kopping",
+  "author": {
+    "email": "dannykopping@gmail.com",
+    "name": "Danny Kopping",
+    "url": "https://github.com/dannykopping"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/dannykopping/b3/issues"
