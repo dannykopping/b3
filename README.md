@@ -29,6 +29,12 @@ For extra tastiness, combine with [`jq`](https://stedolan.github.io/jq/)
 strace -f -p 1234 |& b3 | jq '' -c
 ```
 
+### Tests
+
+Run `npm test` to execute the test suite.
+
+To enable extra tracing for problem-solving, set `TRACE=true`
+
 ### Caveats, Limitations & Other Miscellany
 
  - Speed-wise, the utility performs well (according to my biased and unscientific benchmarking). It can currently parse ~15-20k lines per second, and there's much room for optimisation I'm sure.
