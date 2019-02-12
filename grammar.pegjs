@@ -48,9 +48,9 @@ syscall
 data_structure
   = socket_address_length_enclosed / socket_address_length /
     array /
-    nested_struct / struct / pseudo_struct /
+    nested_struct / struct /
     bitwise_array /
-    ip_address / address /
+    ip_address / address / ellipsis /
     socket /
     function_call /
     int /
@@ -161,17 +161,11 @@ struct_property
       return {name: key, value: key};
     }
 
-// separated by spaces, not commas - very strange
-pseudo_struct
-  = '{' value:[^\}]+ '}' {
-  return value.join('').split(/\s+/)
-}
-
 key "key"
   = value:[_a-z0-9]+ { return value.join(''); }
 
 capitalised_key "capitalised key"
-  = value:([A-Z][_a-z0-9])+ {
+  = value:([A-Z][_a-z0-9]+) {
       var flattened = [].concat.apply([], value);
       return flattened.join('');
     }
@@ -179,7 +173,7 @@ capitalised_key "capitalised key"
 arguments_list
   = '(' _ values:(
     head:data_structure
-    tail:("," _ value:(arguments_list_abbreviation / data_structure) { return value; })*
+    tail:(("," / " ") _ value:(arguments_list_abbreviation / data_structure) { return value; })*
       {
         // if both the head and tail are empty arrays, don't return an array in an array
         if ((tail === null || tail.length <= 0) && (head === null || head.length <= 0)) {
@@ -189,7 +183,7 @@ arguments_list
         return [head].concat(tail);
       }
     )?
-    _ arguments_list_abbreviation? _ ')'
+    _ ')'
   {
     return values !== null ? values : [];
   }
@@ -286,7 +280,7 @@ timing = _ '<' value:([\.\-0-9]+) '>' _ { return Number(value.join('')); }
 
 pid = ('[pid' _)? _ value:([0-9]+) _ (']')? _ { return Number(value.join('')); }
 
-ellipsis = _ '...' _
+ellipsis = _ '...' _ { return undefined }
 
 alert = "+++" _ message:[^\+]+ _ "+++" { return message.join('').trim() }
 

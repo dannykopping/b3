@@ -314,13 +314,27 @@ describe('strace output parsing', function() {
       it('handles strange ioctl format', function() {
         const line = String.raw `11365 ioctl(16, TCGETS, {B38400 opost isig icanon echo ...}) = 0`;
         const parsed = parser.parseLine(line);
-        expect(parsed.args).to.eql([16, ['TCGETS'], ['B38400', 'opost', 'isig', 'icanon', 'echo', '...']]);
+        expect(parsed.args).to.eql([16, ['TCGETS'], {
+          'B38400': {
+            name: 'opost',
+            value: {
+              name: 'isig',
+              value: {
+                name: 'icanon',
+                value: {
+                  name: 'echo',
+                  value: 'echo'
+                }
+              }
+            }
+          }
+        }]);
       });
 
       it('handles abbreviated arguments', function() {
         const line = String.raw `execve("/usr/bin/xdg-open", ["xdg-open", "."], 0x7ffdb094c968 /* 54 vars */) = 0`;
         const parsed = parser.parseLine(line);
-        expect(parsed.args).to.eql(['/usr/bin/xdg-open', ['xdg-open', '.'], 0x7ffdb094c968]);
+        expect(parsed.args).to.eql(['/usr/bin/xdg-open', ['xdg-open', '.'], 0x7ffdb094c968, '...']);
       });
 
       it('handles abbreviated entries', function() {
