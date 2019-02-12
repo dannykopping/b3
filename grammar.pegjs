@@ -134,23 +134,27 @@ nested_struct
   }
 
 struct
-  = '{'
-  values:(
-    head:struct_property
-    tail:(',' _ value:ellipsis? / value:struct_property { return value; })* {
+  = '{' _
+      values:(
+        head:data_structure
+        tail:(',' _ value:data_structure { return value })*
+      {
         var result = {};
 
         [head].concat(tail).forEach(function(element) {
           if(!element.hasOwnProperty('name') || !element.hasOwnProperty('value')) {
-            return;
+            result[element] = element;
+          } else {
+            result[element.name] = element.value;
           }
-          result[element.name] = element.value;
         });
 
         return result;
-    })?
-  '}'
-  { return values !== null ? values : []; }
+      })
+    _ '}'
+    {
+      return values !== null ? values : [];
+    }
 
 struct_property
   = key:(key / capitalised_key) _ ("=")? _ value:(function_call / quoted_value / data_structure / basic_value)? {

@@ -372,6 +372,18 @@ describe('strace output parsing', function() {
         const parsed = parser.parseLine(line);
         expect(parsed.args).to.eql([6, {msg_name:{sa_family: ['AF_NETLINK'], msg_namelen: {ulen: 128, rlen: 12}}}]);
       });
+
+      it('handles weird flags as struct values', function() {
+        const line = String.raw `13328 epoll_ctl(9, EPOLL_CTL_ADD, 12, {EPOLLIN, {u32=12, u64=12}}) = 0`;
+        const parsed = parser.parseLine(line);
+        expect(parsed.args).to.eql([9, ['EPOLL_CTL_ADD'], 12, {
+          'EPOLLIN': ['EPOLLIN'],
+          '[object Object]': {  // this is sub-optimal, but not sure a way around it
+            u32: 12,
+            u64: 12
+          }
+        }]);
+      });
     });
   });
 });
