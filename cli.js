@@ -14,7 +14,9 @@ program
   .option('-s, --stop-on-fail', 'Stop on parser failure', false)
   .parse(process.argv);
 
-parser.initialize();
+parser.initialize({
+  trace: process.env.TRACE == 'true'
+});
 
 const rl = readline.createInterface({
   input: process.stdin,

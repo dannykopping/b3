@@ -1,31 +1,38 @@
 {
   "name": "b3-strace-parser",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "strace to json parser",
   "main": "cli.js",
   "bin": {
     "b3": "./cli.js"
   },
-  "engines": { "node": ">=8.10" },
-  "keywords": ["strace"],
+  "engines": {
+    "node": ">=8.10"
+  },
+  "keywords": [
+    "strace"
+  ],
   "preferGlobal": true,
   "directories": {
     "test": "test",
     "lib": "lib"
   },
-  "files": ["grammar.pegjs", "lib/"],
+  "files": [
+    "grammar.pegjs",
+    "lib/"
+  ],
   "dependencies": {
     "commander": "^2.19.0",
     "debug": "^4.1.1",
-    "expect.js": "^0.3.1",
     "nexe": "^3.0.0-beta",
     "node-exceptions": "^4.0.1",
     "pegjs": "^0.10.0",
-    "typescript": "^3.3"
+    "pegjs-backtrace": "^0.1.2"
   },
   "devDependencies": {
     "mocha": "^5.2.0",
-    "expect.js": "^0.3.1"
+    "expect.js": "^0.3.1",
+    "typescript": "^3.3"
   },
   "scripts": {
     "test": "mocha"
