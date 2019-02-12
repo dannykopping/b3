@@ -1,0 +1,9 @@
+CHANGELOG
+
+## [0.1.6] - 2019-02-11
+### Added
+- Initial public release
+
+## [0.2.0] - 2019-02-11
+### Changed
+- Switched to a node 10.x LTS-based static build

@@ -1,6 +1,6 @@
 {
   "name": "b3-strace-parser",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "strace to json parser",
   "main": "cli.js",
   "bin": {
