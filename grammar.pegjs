@@ -1,5 +1,5 @@
 line
-  = error_line / alert_line / stopped_line / syscall_line
+  = syscall_line / error_line / alert_line / stopped_line
 
 // add one for strace error
 
@@ -43,7 +43,10 @@ syscall_line
   }
 
 syscall
-  = _ value:([_a-zA-Z0-9'"]+) { return value.join(''); }
+  = _ value:([_a-z][_a-zA-Z0-9'"]+) {
+    var flattened = [].concat.apply([], value);
+    return flattened.join('');
+  }
 
 data_structure
   = socket_address_length_enclosed / socket_address_length /
